@@ -112,6 +112,45 @@ router.post('/estateRegister', async function(req, res, next) {
 // 按条件查找未登记的房产信息
 router.post('/searchEstateApplication', async function(req, res, next) {
   console.log(req.body.params.houseInfo)
-  res.json({ state: 200 })
+  let houseInfo = req.body.params.houseInfo
+  if (!houseInfo.houseUnit) {
+    houseInfo.houseUnit = ''
+  }
+  if (!houseInfo.houseFloor) {
+    houseInfo.houseFloor = ''
+  }
+  if (!houseInfo.houseApart) {
+    houseInfo.houseApart = ''
+  }
+  if (!houseInfo.houseBuilds) {
+    houseInfo.houseBuilds = ''
+  }
+  let where = {
+    estateBuilds: {
+      [Op.like]: '%' + houseInfo.houseBuilds + '%'
+    },
+    estateUnit: {
+      [Op.like]: '%' + houseInfo.houseUnit + '%'
+    },
+    estateFloor: {
+      [Op.like]: '%' + houseInfo.houseFloor + '%'
+    },
+    estateApart: {
+      [Op.like]: '%' + houseInfo.houseApart + '%'
+    },
+    estateResgister: '未登记'
+  }
+  const estate = await models.estate
+    .findAll({
+      order: [['id', 'DESC']],
+      where: where
+    })
+    .then(estates => {
+      if (estates) {
+        res.json({ state: 200, estates: estates })
+      } else {
+        res.json({ state: 400 })
+      }
+    })
 })
 module.exports = router
