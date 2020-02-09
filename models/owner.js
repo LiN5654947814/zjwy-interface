@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
     {}
   )
   owner.associate = function(models) {
-    models.owner.hasOne(models.estate, {
+    models.owner.hasMany(models.estate, {
       foreignKey: 'estateOwnerCard',
       sourceKey: 'ownerCard'
     })

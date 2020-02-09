@@ -79,8 +79,9 @@ router.post('/deleteOwner', async function(req, res, next) {
         ownerCard: req.body.params.ownerCard
       }
     })
-    .then(flag => {
-      if (flag) {
+    .then(owner => {
+      console.log(owner)
+      if (owner) {
         res.json({ state: 200, message: '删除成功' })
       } else {
         res.json({ state: 400 })
@@ -204,7 +205,6 @@ router.post('/modifyOwner', async function(req, res, next) {
         }
       })
       .then(async owner => {
-        console.log(owner.id + '----' + req.body.params.id)
         if (owner.id === req.body.params.id) {
           let owner = await models.owner
             .findOne({

@@ -108,4 +108,10 @@ router.post('/estateRegister', async function(req, res, next) {
       })
   }
 })
+
+// 按条件查找未登记的房产信息
+router.post('/searchEstateApplication', async function(req, res, next) {
+  console.log(req.body.params.houseInfo)
+  res.json({ state: 200 })
+})
 module.exports = router
