@@ -153,4 +153,55 @@ router.post('/searchEstateApplication', async function(req, res, next) {
       }
     })
 })
+
+// 编辑未登记的房产信息
+router.post('/modifyEstateApplication', async function(req, res, next) {
+  let estateInfo = req.body.params.estateInfo
+  if (estateInfo) {
+    let estate = await models.estate
+      .findOne({
+        where: {
+          estateBuilds: estateInfo.estateBuilds,
+          estateUnit: estateInfo.estateUnit,
+          estateFloor: estateInfo.estateFloor,
+          estatePlate: estateInfo.estatePlate
+        }
+      })
+      .then(async estate => {
+        if (estate != null) {
+          if (estate.id === estateInfo.id) {
+            let estate = await models.estate
+              .update(estateInfo, {
+                where: {
+                  id: estateInfo.id
+                }
+              })
+              .then(flag => {
+                if (flag) {
+                  res.json({ state: 200, message: '修改成功' })
+                } else {
+                  res.json({ state: 400 })
+                }
+              })
+          } else {
+            res.json({ state: 401, message: '此房产信息重复，已存在' })
+          }
+        } else {
+          let estate = await models.estate
+            .update(estateInfo, {
+              where: {
+                id: estateInfo.id
+              }
+            })
+            .then(flag => {
+              if (flag) {
+                res.json({ state: 200, message: '修改成功' })
+              } else {
+                res.json({ state: 400 })
+              }
+            })
+        }
+      })
+  }
+})
 module.exports = router
