@@ -89,7 +89,7 @@ router.post('/estateRegister', async function(req, res, next) {
       .then(async owner => {
         if (owner === null) {
           console.log(owner)
-          res.json({ state: 401, message: '业主不存在' })
+          res.json({ state: 401, message: '业主不存在,请检查业主姓名与身份证' })
         } else {
           const estate = await models.estate
             .update(req.body.params, {
@@ -203,5 +203,117 @@ router.post('/modifyEstateApplication', async function(req, res, next) {
         }
       })
   }
+})
+
+// 删除单个房产信息
+router.post('/deleteEstateApplication', async function(req, res, next) {
+  let estateId = req.body.params.estateId
+  let estate = await models.estate
+    .destroy({
+      where: {
+        id: estateId
+      }
+    })
+    .then(flag => {
+      console.log(flag)
+      if (flag != null) {
+        res.json({ state: 200, message: '删除成功' })
+      } else {
+        res.json({ state: 400 })
+      }
+    })
+})
+// 批量删除房产信息
+router.post('/deleteEstateApplicationList', function(req, res, next) {
+  let estateList = req.body.params.estateList
+  return new Promise(async (resolve, reject) => {
+    if (!estateList) {
+      reject(error)
+    } else if (estateList.length != 0) {
+      await estateList.forEach(item => {
+        let estate = models.estate.destroy({
+          where: {
+            id: item.id
+          }
+        })
+      })
+      resolve()
+    }
+  })
+    .then(data => {
+      res.json({ state: 200, message: '删除成功' })
+    })
+    .catch(error => {
+      res.json({ state: 400 })
+    })
+})
+
+// 解除已登记的房产信息
+router.post('/reliveRegister', async function(req, res, next) {
+  let estateInfo = req.body.params.estateInfo
+  let estateResgister = {
+    estateResgister: '未登记',
+    estateOwner: '',
+    estateOwnerCard: '',
+    ownerMoveDate: '',
+    estateContent: ''
+  }
+  let estateUpdate = await models.estate
+    .update(estateResgister, {
+      where: {
+        id: estateInfo.id
+      }
+    })
+    .then(flag => {
+      if (flag != null) {
+        res.json({ state: 200, message: '已解除绑定' })
+      } else {
+        res.json({ state: 400 })
+      }
+    })
+})
+
+// 搜索已登记的房产信息
+router.post('/searchRegisterApplication', async function(req, res, next) {
+  let searchInfo = req.body.params.searchInfo
+  if (!searchInfo.estateBuilds) {
+    searchInfo.estateBuilds = ''
+  }
+  if (!searchInfo.estateUnit) {
+    searchInfo.estateUnit = ''
+  }
+  if (!searchInfo.estatePlate) {
+    searchInfo.estatePlate = ''
+  }
+  if (!searchInfo.estateOwner) {
+    searchInfo.estateOwner = ''
+  }
+  let where = {
+    estateBuilds: {
+      [Op.like]: '%' + searchInfo.estateBuilds + '%'
+    },
+    estateUnit: {
+      [Op.like]: '%' + searchInfo.estateUnit + '%'
+    },
+    estatePlate: {
+      [Op.like]: '%' + searchInfo.estatePlate + '%'
+    },
+    estateOwner: {
+      [Op.like]: '%' + searchInfo.estateOwner + '%'
+    },
+    estateResgister: '已登记'
+  }
+  const estate = await models.estate
+    .findAll({
+      order: [['id', 'DESC']],
+      where: where
+    })
+    .then(estates => {
+      if (estates != null) {
+        res.json({ state: 200, estates: estates })
+      } else {
+        res.json({ state: 400 })
+      }
+    })
 })
 module.exports = router

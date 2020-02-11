@@ -94,7 +94,7 @@ router.post('/deleteOwners', function(req, res, next) {
   return new Promise(async (resolve, reject) => {
     if (!req.body.params.deleteOwners) {
       reject(error)
-    } else if (req.body.params.deleteOwners.length) {
+    } else if (req.body.params.deleteOwners.length != 0) {
       await req.body.params.deleteOwners.forEach(item => {
         const deleteActive = models.owner.destroy({
           where: {
