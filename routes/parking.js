@@ -52,4 +52,34 @@ router.post('/parkingRegister', async function(req, res, next) {
       })
   }
 })
+
+// 新增车位信息
+router.post('/addParking', async function(req, res, next) {
+  let parkingInfo = req.body.params.parkingInfo
+  parkingInfo.parkingStartTime = ''
+  parkingInfo.parkingEndTime = ''
+  parkingInfo.parkingOwner = ''
+  console.log(parkingInfo)
+  if (parkingInfo) {
+    let pakring = await models.parking
+      .findOne({
+        where: {
+          parkingNum: parkingInfo.parkingNum
+        }
+      })
+      .then(async parking => {
+        if (parking != null) {
+          res.json({ state: 401, message: '该车位编号已存在' })
+        } else {
+          const parking = await models.parking
+            .create(parkingInfo)
+            .then(parking => {
+              if (parking != null) {
+                res.json({ state: 200, message: '新增成功' })
+              }
+            })
+        }
+      })
+  }
+})
 module.exports = router
