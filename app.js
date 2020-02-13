@@ -8,6 +8,8 @@ const user_admin = require('./routes/user_admin')
 const owners = require('./routes/owner')
 // 房产表接口
 const estate = require('./routes/estate')
+// 车位表接口
+const parking = require('./routes/parking')
 
 app.all('*', function(req, res, next) {
   // 设置跨域
@@ -27,6 +29,7 @@ app.use(bodyParser.json())
 app.use(user_admin)
 app.use(owners)
 app.use(estate)
+app.use(parking)
 
 app.listen(3000, function() {
   console.log('Server Running 3000')
