@@ -19,7 +19,10 @@ module.exports = (sequelize, DataTypes) => {
     {}
   )
   parking.associate = function(models) {
-    // associations can be defined here
+    models.parking.hasOne(models.owner, {
+      foreignKey: 'ownerCard',
+      sourceKey: 'parkingOwnerCard'
+    })
   }
   return parking
 }

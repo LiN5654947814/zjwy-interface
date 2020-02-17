@@ -6,7 +6,7 @@ const Op = models.Sequelize.Op
 router.get('/getAllOwner', async function(req, res, next) {
   const ownerList = await models.owner
     .findAll({
-      include: [models.estate]
+      include: [models.estate, models.parking]
     })
     .then(owners => {
       if (owners != null) {
