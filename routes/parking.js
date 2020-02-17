@@ -97,12 +97,19 @@ router.post('/searchParking', async function(req, res, next) {
       [Op.like]: '%' + keyWrods + '%'
     }
   }
-  if (keyWrods == '') {
-    const parking = await models.parking.findAll().then(parkingList => {
-      if (parkingList != null) {
-        res.json({ state: 200, parkingList: parkingList })
-      }
-    })
+  if (keyWrods === '') {
+    console.log(1111111111)
+    const parking = await models.parking
+      .findAll({
+        where: {
+          parkingType: '公有'
+        }
+      })
+      .then(parkingList => {
+        if (parkingList != null) {
+          res.json({ state: 200, parkingList: parkingList })
+        }
+      })
   } else {
     const parking = await models.parking
       .findAll({
@@ -217,8 +224,8 @@ router.post('/searchRegisterParking', async function(req, res, next) {
   if (!keyWrods.parkingNum) {
     keyWrods.parkingNum = ''
   }
-  if (!keyWrods.payDate) {
-    keyWrods.payDate = ''
+  if (!keyWrods.parkingStartTime) {
+    keyWrods.parkingStartTime = ''
   }
   if (!keyWrods.parkingOwner) {
     keyWrods.parkingOwner = ''
@@ -228,23 +235,20 @@ router.post('/searchRegisterParking', async function(req, res, next) {
       [Op.like]: '%' + keyWrods.parkingNum + '%'
     },
     parkingStartTime: {
-      [Op.between]: [keyWrods.payDate[0], keyWrods.payDate[1]]
-    },
-    parkingEndTime: {
-      [Op.between]: [keyWrods.payDate[0], keyWrods.payDate[1]]
+      [Op.gte]: keyWrods.parkingStartTime
     },
     parkingOwner: {
       [Op.like]: '%' + keyWrods.parkingOwner + '%'
     },
     parkingType: '私有'
   }
+  console.log(keyWrods)
   const parking = await models.parking
     .findAll({
-      where: where,
-      order: [['id', 'DESC']]
+      order: [['id', 'asc']],
+      where: where
     })
     .then(parkingList => {
-      console.log(parkingList)
       if (parkingList != null) {
         res.json({ state: 200, parkingList: parkingList })
       } else {
@@ -253,4 +257,21 @@ router.post('/searchRegisterParking', async function(req, res, next) {
     })
 })
 
+// 变更报修信息
+router.post('/modifyFixDetail', async function(req, res, next) {
+  let fixDetail = req.body.params.fixDetail
+  const fix = await models.fix
+    .update(fixDetail, {
+      where: {
+        id: fixDetail.id
+      }
+    })
+    .then(fix => {
+      if (fix != null) {
+        res.json({ state: 200, message: '变更成功' })
+      } else {
+        res.json({ state: 400 })
+      }
+    })
+})
 module.exports = router

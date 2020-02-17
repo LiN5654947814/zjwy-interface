@@ -5,20 +5,17 @@ const Op = models.Sequelize.Op
 
 // 获取所有登记的房产
 router.get('/getAllRegisterEstate', async function(req, res, next) {
-  const registerEstate = await models.estate
-    .findAll({
-      order: [['id', 'DESC']],
-      where: {
-        estateResgister: '已登记'
-      }
-    })
-    .then(estate => {
-      if (estate != null) {
-        res.json({ state: 200, estate: estate })
-      } else {
-        res.json({ state: 400 })
-      }
-    })
+  const registerEstate = await models.estate.findAll({
+    order: [['id', 'DESC']],
+    where: {
+      estateResgister: '已登记'
+    }
+  })
+  if (registerEstate != null) {
+    res.json({ state: 200, estate: registerEstate })
+  } else {
+    res.json({ state: 400 })
+  }
 })
 
 // 获取所有未登记的房产
@@ -77,21 +74,21 @@ router.post('/addEstate', async function(req, res, next) {
 })
 
 // 登记房产
-router.post('/estateRegister', async function(req, res, next) {
+router.post('/estateRegister', function(req, res, next) {
   if (req.body.params.estateOwnerCard && req.body.params.estateOwner) {
-    let owner = await models.owner
+    let owner = models.owner
       .findOne({
         where: {
           ownerName: req.body.params.estateOwner,
           ownerCard: req.body.params.estateOwnerCard
         }
       })
-      .then(async owner => {
+      .then(owner => {
         if (owner === null) {
           console.log(owner)
           res.json({ state: 401, message: '业主不存在,请检查业主姓名与身份证' })
         } else {
-          const estate = await models.estate
+          const estate = models.estate
             .update(req.body.params, {
               where: {
                 id: req.body.params.id
@@ -110,7 +107,7 @@ router.post('/estateRegister', async function(req, res, next) {
 })
 
 // 按条件查找未登记的房产信息
-router.post('/searchEstateApplication', async function(req, res, next) {
+router.post('/searchEstateApplication', function(req, res, next) {
   console.log(req.body.params.houseInfo)
   let houseInfo = req.body.params.houseInfo
   if (!houseInfo.houseUnit) {
@@ -140,7 +137,7 @@ router.post('/searchEstateApplication', async function(req, res, next) {
     },
     estateResgister: '未登记'
   }
-  const estate = await models.estate
+  const estate = models.estate
     .findAll({
       order: [['id', 'DESC']],
       where: where
