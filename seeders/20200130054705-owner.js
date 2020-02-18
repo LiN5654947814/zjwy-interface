@@ -15,7 +15,6 @@ module.exports = {
           ownerParking: '1',
           ownerEstate: '1',
           ownerMoveDate: '2020-1-30',
-          ownerState: true,
           createdAt: new Date(),
           updatedAt: new Date()
         }

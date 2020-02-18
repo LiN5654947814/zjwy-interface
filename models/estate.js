@@ -35,6 +35,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'ownerCard',
       sourceKey: 'estateOwnerCard'
     })
+    models.estate.hasMany(models.complaint, {
+      foreignKey: 'complaintOwnerCard',
+      sourceKey: 'estateOwnerCard'
+    })
   }
   return estate
 }
