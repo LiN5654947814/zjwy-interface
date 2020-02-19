@@ -14,6 +14,7 @@ module.exports = {
           complainOwnerUnit: 'A栋-B区-101',
           complainReply: '',
           redState: '0',
+          ownerRedState: '0',
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -26,6 +27,7 @@ module.exports = {
           complainOwnerUnit: 'B栋-A区-204',
           complainReply: '',
           redState: '0',
+          ownerRedState: '0',
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -38,6 +40,7 @@ module.exports = {
           complainOwnerUnit: 'A栋-B区-101',
           complainReply: '',
           redState: '0',
+          ownerRedState: '0',
           createdAt: new Date(),
           updatedAt: new Date()
         }

@@ -17,5 +17,96 @@ router.get('/getAllComplaint', function(req, res, next) {
       }
     })
 })
+// 按条件搜索
+router.post('/searchComplaint', function(req, res, next) {
+  const complaintSearch = req.body.params.complaintSearch
+  if (!complaintSearch.complaintOwner) {
+    complaintSearch.complaintOwner = ''
+  }
+  if (!complaintSearch.complaintType) {
+    complaintSearch.complaintType = ''
+  }
+  let where = {
+    complaintOwner: {
+      [Op.like]: '%' + complaintSearch.complaintOwner + '%'
+    },
+    complaintType: {
+      [Op.like]: '%' + complaintSearch.complaintType + '%'
+    }
+  }
+  const complaintList = models.complaint
+    .findAll({
+      where: where
+    })
+    .then(complaint => {
+      if (complaint != null) {
+        res.json({ state: 200, complaintList: complaint })
+      } else {
+        res.json({ state: 400 })
+      }
+    })
+})
+
+// 标记已读
+router.post('/redStateChange', function(req, res, next) {
+  let complaintInfo = req.body.params.complaint
+  complaintInfo.redState = '1'
+  const complaint = models.complaint
+    .update(complaintInfo, {
+      where: {
+        id: complaintInfo.id
+      }
+    })
+    .then(complaint => {
+      if (complaint != null) {
+        res.json({ state: 200, message: '标记已读' })
+      } else {
+        res.json({ state: 400 })
+      }
+    })
+})
+
+// 删除单个投诉信息
+router.post('/deleteComplaint', function(req, res, next) {
+  let complaint = req.body.params.complaint
+  const deletComplaint = models.complaint
+    .destroy({
+      where: {
+        id: complaint.id
+      }
+    })
+    .then(complaint => {
+      if (complaint != null) {
+        res.json({ state: 200, message: '删除成功' })
+      } else {
+        res.json({ state: 400 })
+      }
+    })
+})
+
+// 批量删除投诉信息
+router.post('/deleteComplaintList', function(req, res, next) {
+  let complaintList = req.body.params.complaintList
+  return new Promise((resolve, reject) => {
+    if (!complaintList) {
+      reject(error)
+    } else if (complaintList.length != 0) {
+      complaintList.forEach(item => {
+        const complaint = models.complaint.destroy({
+          where: {
+            id: item.id
+          }
+        })
+      })
+      resolve()
+    }
+  })
+    .then(() => {
+      res.json({ state: 200, message: '删除成功' })
+    })
+    .catch(() => {
+      res.json({ state: 400 })
+    })
+})
 
 module.exports = router
