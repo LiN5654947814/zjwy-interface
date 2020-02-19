@@ -14,6 +14,8 @@ const parking = require('./routes/parking')
 const fix = require('./routes/fix')
 // 投诉接口
 const complaint = require('./routes/complaint')
+// 缴费表接口
+const pay = require('./routes/pay')
 
 app.all('*', function(req, res, next) {
   // 设置跨域
@@ -36,6 +38,7 @@ app.use(estate)
 app.use(parking)
 app.use(fix)
 app.use(complaint)
+app.use(pay)
 
 app.listen(3000, function() {
   console.log('Server Running 3000')
