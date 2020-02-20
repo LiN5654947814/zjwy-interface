@@ -250,4 +250,63 @@ router.post('/modifyOwner', async function(req, res, next) {
   }
 })
 
+// 根据名字身份证手机号获取业主信息
+router.post('/getOwner', function(req, res, next) {
+  let ownerInfo = req.body.params.ownerInfo
+  const owner = models.owner
+    .findOne({
+      where: {
+        ownerCard: ownerInfo.ownerCard,
+        ownerName: ownerInfo.ownerName,
+        ownerPhone: ownerInfo.ownerPhone
+      },
+      include: [models.estate, models.parking]
+    })
+    .then(owner => {
+      if (owner != null) {
+        console.log(owner)
+        res.json({ state: 200, owner: owner })
+      } else {
+        res.json({ state: 400 })
+      }
+    })
+})
+
+// 业主修改密码
+router.post('/modifyPassword', function(req, res, next) {
+  let ownerInfo = req.body.params.ownerInfo
+  const owner = models.owner
+    .findOne({
+      where: {
+        ownerCard: ownerInfo.ownerCard,
+        ownerName: ownerInfo.ownerName,
+        ownerPhone: ownerInfo.ownerPhone
+      }
+    })
+    .then(owner => {
+      console.log(owner.originalPassword)
+      console.log(ownerInfo.inputOriginalPassword)
+      if (owner.originalPassword === ownerInfo.inputOriginalPassword) {
+        const modifyPassowd = models.owner
+          .update(
+            { originalPassword: ownerInfo.newPassword },
+            {
+              where: {
+                ownerCard: ownerInfo.ownerCard,
+                ownerName: ownerInfo.ownerName
+              }
+            }
+          )
+          .then(modify => {
+            if (modify != null) {
+              res.json({ state: 200, message: '修改成功，请重新登录' })
+            } else {
+              res.json({ state: 400 })
+            }
+          })
+      } else {
+        res.json({ state: 401, message: '原密码错误' })
+      }
+    })
+})
 module.exports = router

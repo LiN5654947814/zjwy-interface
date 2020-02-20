@@ -1,39 +1,27 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('complaints', {
+    return queryInterface.createTable('messages', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      complaintTime: {
+      messageTitle: {
         type: Sequelize.STRING
       },
-      complaintType: {
+      messageContent: {
         type: Sequelize.STRING
       },
-      complaintContent: {
+      messageOwner: {
         type: Sequelize.STRING
       },
-      complaintOwner: {
+      messageOwnerCard: {
         type: Sequelize.STRING
       },
-      complaintOwnerCard: {
-        type: Sequelize.STRING
-      },
-      complainOwnerUnit: {
-        type: Sequelize.STRING
-      },
-      complainReply: {
-        type: Sequelize.STRING
-      },
-      redState: {
-        type: Sequelize.STRING
-      },
-      ownerRedState: {
-        type: Sequelize.STRING
+      messageReadState: {
+        type: Sequelize.BOOLEAN
       },
       createdAt: {
         allowNull: false,
@@ -46,6 +34,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('complaints');
+    return queryInterface.dropTable('messages');
   }
 };

@@ -1,36 +1,39 @@
-'use strict'
+'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('fixes', {
+    return queryInterface.createTable('complaints', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      // 报修提交时间
-      fixStartTime: {
+      complaintTime: {
         type: Sequelize.STRING
       },
-      // 报修内容
-      fixContent: {
+      complaintType: {
         type: Sequelize.STRING
       },
-      // 报修业主
-      fixOwner: {
+      complaintContent: {
         type: Sequelize.STRING
       },
-      // 业主身份证
-      fixOwnerCard: {
+      complaintOwner: {
         type: Sequelize.STRING
       },
-      // 完成时间
-      fixEndTime: {
+      complaintOwnerPhone: {
         type: Sequelize.STRING
       },
-      // 报修状态
-      fixState: {
+      complainOwnerUnit: {
         type: Sequelize.STRING
+      },
+      complaintReply: {
+        type: Sequelize.STRING
+      },
+      readState: {
+        type: Sequelize.BOOLEAN
+      },
+      ownerReadState: {
+        type: Sequelize.BOOLEAN
       },
       createdAt: {
         allowNull: false,
@@ -40,9 +43,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       }
-    })
+    });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('fixes')
+    return queryInterface.dropTable('complaints');
   }
-}
+};

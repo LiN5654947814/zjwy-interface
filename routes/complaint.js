@@ -5,17 +5,13 @@ const Op = models.Sequelize.Op
 
 // 获取所有投诉信息
 router.get('/getAllComplaint', function(req, res, next) {
-  const complaintList = models.complaint
-    .findAll({
-      include: [models.estate]
-    })
-    .then(complaintList => {
-      if (complaintList != null) {
-        res.json({ state: 200, complaintList: complaintList })
-      } else {
-        res.json({ state: 400 })
-      }
-    })
+  const complaintList = models.complaint.findAll().then(complaintList => {
+    if (complaintList != null) {
+      res.json({ state: 200, complaintList: complaintList })
+    } else {
+      res.json({ state: 400 })
+    }
+  })
 })
 // 按条件搜索
 router.post('/searchComplaint', function(req, res, next) {
@@ -48,9 +44,9 @@ router.post('/searchComplaint', function(req, res, next) {
 })
 
 // 标记已读
-router.post('/redStateChange', function(req, res, next) {
+router.post('/readStateChange', function(req, res, next) {
   let complaintInfo = req.body.params.complaint
-  complaintInfo.redState = '1'
+  complaintInfo.readState = '1'
   const complaint = models.complaint
     .update(complaintInfo, {
       where: {

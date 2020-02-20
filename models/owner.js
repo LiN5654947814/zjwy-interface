@@ -29,10 +29,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'parkingOwnerCard',
       sourceKey: 'ownerCard'
     })
-    models.owner.hasMany(models.complaint, {
-      foreignKey: 'complaintOwnerCard',
-      sourceKey: 'ownerCard'
-    })
+    // models.owner.hasMany(models.complaint, {
+    //   foreignKey: 'complaintOwnerPhone',
+    //   sourceKey: 'ownerCard'
+    // })
   }
   return owner
 }

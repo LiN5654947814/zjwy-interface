@@ -24,7 +24,14 @@ router.post('/login', async function(req, res, next) {
       // 生成token 有效时间一小时
       const token = jwt.sign(userInfo, secret, { expiresIn: 60 * 60 * 1 })
       if (admin != null) {
-        res.json({ state: 200, token: token, author: admin.author })
+        res.json({
+          state: 200,
+          token: token,
+          author: admin.author,
+          ownerPhone: admin.ownerPhone,
+          ownerName: admin.ownerName,
+          ownerCard: admin.ownerCard
+        })
       } else {
         res.json({ state: 400 })
       }

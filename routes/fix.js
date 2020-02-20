@@ -106,4 +106,23 @@ router.post('/deleteFixList', function(req, res, next) {
       res.json({ state: 400 })
     })
 })
+
+// 根据业主获取他的报修信息
+router.post('/getOwnerFix', function(req, res, next) {
+  let ownerInfo = req.body.params.ownerInfo
+  const ownerFixList = models.fix
+    .findAll({
+      where: {
+        fixOwner: ownerInfo.ownerName,
+        fixOwnerPhone: ownerInfo.ownerPhone
+      }
+    })
+    .then(ownerFixList => {
+      if (ownerFixList != null) {
+        res.json({ state: 200, ownerFixList: ownerFixList })
+      } else {
+        res.json({ state: 400 })
+      }
+    })
+})
 module.exports = router
