@@ -11,13 +11,10 @@ module.exports = {
           ownerName: '孙笑川',
           ownerSex: '男',
           ownerEmail: '123@qq.com',
-          ownerUnit: 'A栋-A区-304',
-          ownerParking: '1',
-          ownerEstate: '1',
-          ownerMoveDate: '2020-1-30',
+          originalPassword: '123456',
+          author: false,
           createdAt: new Date(),
-          updatedAt: new Date(),
-          originalPassword: '123456'
+          updatedAt: new Date()
         },
         {
           ownerCard: '440103199003077650',
@@ -25,13 +22,10 @@ module.exports = {
           ownerName: '孙亚龙',
           ownerSex: '男',
           ownerEmail: '77@qq.com',
-          ownerUnit: 'B栋-A区-204',
-          ownerParking: '1',
-          ownerEstate: '1',
-          ownerMoveDate: '2019-12-01',
+          originalPassword: '123456',
+          author: false,
           createdAt: new Date(),
-          updatedAt: new Date(),
-          originalPassword: '123456'
+          updatedAt: new Date()
         },
         {
           ownerCard: '440103199003072155',
@@ -39,13 +33,10 @@ module.exports = {
           ownerName: '梁志斌',
           ownerSex: '男',
           ownerEmail: 'acf@qq.com',
-          ownerUnit: 'B栋-A区-204',
-          ownerParking: '1',
-          ownerEstate: '1',
-          ownerMoveDate: '2019-07-01',
+          originalPassword: '123456',
+          author: false,
           createdAt: new Date(),
-          updatedAt: new Date(),
-          originalPassword: '123456'
+          updatedAt: new Date()
         }
       ],
       {}

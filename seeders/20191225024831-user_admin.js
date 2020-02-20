@@ -8,6 +8,8 @@ module.exports = {
         {
           username_admin: 'admin',
           password_admin: 'admin',
+          author: true,
+          adminToken: '',
           createdAt: new Date(),
           updatedAt: new Date()
         }

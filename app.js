@@ -2,8 +2,6 @@ const express = require('express')
 const bodyParser = require('body-parser')
 
 const app = express()
-// 管理员登录表
-const user_admin = require('./routes/user_admin')
 // 业主表接口
 const owners = require('./routes/owner')
 // 房产表接口
@@ -16,6 +14,8 @@ const fix = require('./routes/fix')
 const complaint = require('./routes/complaint')
 // 缴费表接口
 const pay = require('./routes/pay')
+// 登录接口
+const login = require('./routes/login')
 
 app.all('*', function(req, res, next) {
   // 设置跨域
@@ -32,7 +32,7 @@ app.all('*', function(req, res, next) {
 
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json())
-app.use(user_admin)
+app.use(login)
 app.use(owners)
 app.use(estate)
 app.use(parking)

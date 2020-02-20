@@ -1,21 +1,33 @@
-'use strict'
+'use strict';
 module.exports = {
-  // up是建表
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('user_admins', {
+    return queryInterface.createTable('owners', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      // 管理员登录名
-      username_admin: {
+      ownerCard: {
         type: Sequelize.STRING
       },
-      // 管理员登录密码
-      password_admin: {
+      ownerPhone: {
         type: Sequelize.STRING
+      },
+      ownerName: {
+        type: Sequelize.STRING
+      },
+      ownerSex: {
+        type: Sequelize.STRING
+      },
+      ownerEmail: {
+        type: Sequelize.STRING
+      },
+      originalPassword: {
+        type: Sequelize.STRING
+      },
+      author: {
+        type: Sequelize.BOOLEAN
       },
       createdAt: {
         allowNull: false,
@@ -25,10 +37,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       }
-    })
+    });
   },
-  // down是删除表
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('user_admins')
+    return queryInterface.dropTable('owners');
   }
-}
+};

@@ -3,22 +3,20 @@ module.exports = (sequelize, DataTypes) => {
   const owner = sequelize.define(
     'owner',
     {
-      // 身份证
+      // 业主身份证
       ownerCard: DataTypes.STRING,
-      // 联系电话
+      // 业主手机号
       ownerPhone: DataTypes.STRING,
-      // 业主名称
+      // 业主名
       ownerName: DataTypes.STRING,
       // 业主性别
       ownerSex: DataTypes.STRING,
-      // 业主邮箱
+      // 业主登录邮箱
       ownerEmail: DataTypes.STRING,
-      // 拥有车位数
-      ownerParking: DataTypes.STRING,
-      // 拥有房产数
-      ownerEstate: DataTypes.STRING,
-      // 初始密码
-      originalPassword: DataTypes.STRING
+      // 业主登录密码
+      originalPassword: DataTypes.STRING,
+      // 权限
+      author: DataTypes.BOOLEAN
     },
     {}
   )
