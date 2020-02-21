@@ -125,4 +125,16 @@ router.post('/getOwnerFix', function(req, res, next) {
       }
     })
 })
+
+// 业主提交报修信息
+router.post('/referOwnerFix', function(req, res, next) {
+  let fixInfo = req.body.params.fixInfo
+  const fix = models.fix.create(fixInfo).then(fix => {
+    if (fix != null) {
+      res.json({ state: 200, message: '提交成功' })
+    } else {
+      res.json({ state: 400 })
+    }
+  })
+})
 module.exports = router

@@ -105,4 +105,23 @@ router.post('/deleteComplaintList', function(req, res, next) {
     })
 })
 
+// 获取业主对应的投诉信息
+router.post('/getOwnerComplaint', function(req, res, next) {
+  let ownerInfo = req.body.params.ownerInfo
+  const complaintList = models.complaint
+    .findAll({
+      where: {
+        complaintOwnerPhone: ownerInfo.ownerPhone,
+        complaintOwner: ownerInfo.ownerName
+      }
+    })
+    .then(complaintList => {
+      if (complaintList != null) {
+        res.json({ state: 200, complaintList: complaintList })
+      } else {
+        res.json({ state: 400 })
+      }
+    })
+})
+
 module.exports = router
