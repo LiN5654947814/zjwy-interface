@@ -4,8 +4,8 @@ const models = require('../models')
 const Op = models.Sequelize.Op
 
 // 获取所有车位信息
-router.get('/getAllParking', async function(req, res, next) {
-  const parkingList = await models.parking
+router.get('/getAllParking', function(req, res, next) {
+  const parkingList = models.parking
     .findAll({
       where: {
         parkingType: '公有'
@@ -21,22 +21,22 @@ router.get('/getAllParking', async function(req, res, next) {
 })
 
 // 登记车位
-router.post('/parkingRegister', async function(req, res, next) {
+router.post('/parkingRegister', function(req, res, next) {
   let parkingInfo = req.body.params.parkingInfo
   console.log(parkingInfo)
   // 查询此业主是否存在
   if (parkingInfo.parkingOwner && parkingInfo.parkingOwnerCard) {
-    let owner = await models.owner
+    let owner = models.owner
       .findOne({
         where: {
           ownerName: parkingInfo.parkingOwner,
           ownerCard: parkingInfo.parkingOwnerCard
         }
       })
-      .then(async owner => {
+      .then(owner => {
         console.log(owner)
         if (owner != null) {
-          let register = await models.parking
+          let register = models.parking
             .update(parkingInfo, {
               where: {
                 id: parkingInfo.id
@@ -60,37 +60,35 @@ router.post('/parkingRegister', async function(req, res, next) {
 })
 
 // 新增车位信息
-router.post('/addParking', async function(req, res, next) {
+router.post('/addParking', function(req, res, next) {
   let parkingInfo = req.body.params.parkingInfo
   parkingInfo.parkingStartTime = ''
   parkingInfo.parkingEndTime = ''
   parkingInfo.parkingOwner = ''
   console.log(parkingInfo)
   if (parkingInfo) {
-    let pakring = await models.parking
+    let pakring = models.parking
       .findOne({
         where: {
           parkingNum: parkingInfo.parkingNum
         }
       })
-      .then(async parking => {
+      .then(parking => {
         if (parking != null) {
           res.json({ state: 401, message: '该车位编号已存在' })
         } else {
-          const parking = await models.parking
-            .create(parkingInfo)
-            .then(parking => {
-              if (parking != null) {
-                res.json({ state: 200, message: '新增成功' })
-              }
-            })
+          const parking = models.parking.create(parkingInfo).then(parking => {
+            if (parking != null) {
+              res.json({ state: 200, message: '新增成功' })
+            }
+          })
         }
       })
   }
 })
 
 // 搜索公有车位信息
-router.post('/searchParking', async function(req, res, next) {
+router.post('/searchParking', function(req, res, next) {
   let keyWrods = req.body.params.keyWrods
   let where = {
     parkingNum: {
@@ -99,7 +97,7 @@ router.post('/searchParking', async function(req, res, next) {
   }
   if (keyWrods === '') {
     console.log(1111111111)
-    const parking = await models.parking
+    const parking = models.parking
       .findAll({
         where: {
           parkingType: '公有'
@@ -111,7 +109,7 @@ router.post('/searchParking', async function(req, res, next) {
         }
       })
   } else {
-    const parking = await models.parking
+    const parking = models.parking
       .findAll({
         order: [['id', 'DESC']],
         where: where
@@ -126,9 +124,9 @@ router.post('/searchParking', async function(req, res, next) {
   }
 })
 // 删除公有车位
-router.post('/deleteParking', async function(req, res, next) {
+router.post('/deleteParking', function(req, res, next) {
   let parkingInfo = req.body.params.parkingInfo
-  const deleteParking = await models.parking
+  const deleteParking = models.parking
     .destroy({
       where: {
         id: parkingInfo.id
@@ -146,11 +144,11 @@ router.post('/deleteParking', async function(req, res, next) {
 // 批量删除公有车位
 router.post('/deleteParkingList', function(req, res, next) {
   let parkingList = req.body.params.parkingList
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     if (!parkingList) {
       reject(error)
     } else if (parkingList.length != 0) {
-      await parkingList.forEach(item => {
+      parkingList.forEach(item => {
         let parking = models.parking.destroy({
           where: {
             id: item.id
@@ -169,8 +167,8 @@ router.post('/deleteParkingList', function(req, res, next) {
 })
 
 // 渲染私有车位
-router.get('/getAllRegisterParking', async function(req, res, next) {
-  const parkingList = await models.parking
+router.get('/getAllRegisterParking', function(req, res, next) {
+  const parkingList = models.parking
     .findAll({
       where: {
         parkingType: '私有'
@@ -186,7 +184,7 @@ router.get('/getAllRegisterParking', async function(req, res, next) {
 })
 
 // 解除车位登记信息
-router.post('/reliveParking', async function(req, res, next) {
+router.post('/reliveParking', function(req, res, next) {
   let parkingInfo = req.body.params.parkingInfo
   let parking = {
     parkingType: '公有',
@@ -195,7 +193,7 @@ router.post('/reliveParking', async function(req, res, next) {
     parkingOwner: '',
     parkingOwnerCard: ''
   }
-  const reliveParking = await models.parking
+  const reliveParking = models.parking
     .update(parking, {
       where: {
         id: parkingInfo.id
@@ -219,7 +217,7 @@ router.post('/modifyRegisterParking', async function(req, res, next) {
 })
 
 // 搜索私有车位信息
-router.post('/searchRegisterParking', async function(req, res, next) {
+router.post('/searchRegisterParking', function(req, res, next) {
   let keyWrods = req.body.params.parkingSearch
   if (!keyWrods.parkingNum) {
     keyWrods.parkingNum = ''
@@ -243,7 +241,7 @@ router.post('/searchRegisterParking', async function(req, res, next) {
     parkingType: '私有'
   }
   console.log(keyWrods)
-  const parking = await models.parking
+  const parking = models.parking
     .findAll({
       order: [['id', 'asc']],
       where: where
@@ -258,9 +256,9 @@ router.post('/searchRegisterParking', async function(req, res, next) {
 })
 
 // 变更报修信息
-router.post('/modifyFixDetail', async function(req, res, next) {
+router.post('/modifyFixDetail', function(req, res, next) {
   let fixDetail = req.body.params.fixDetail
-  const fix = await models.fix
+  const fix = models.fix
     .update(fixDetail, {
       where: {
         id: fixDetail.id

@@ -19,8 +19,8 @@ router.get('/getAllRegisterEstate', async function(req, res, next) {
 })
 
 // 获取所有未登记的房产
-router.get('/getAllUnSaleEstate', async function(req, res, next) {
-  const unSale = await models.estate
+router.get('/getAllUnSaleEstate', function(req, res, next) {
+  const unSale = models.estate
     .findAll({
       order: [['id', 'DESC']],
       where: {
@@ -37,7 +37,7 @@ router.get('/getAllUnSaleEstate', async function(req, res, next) {
 })
 
 // 新增未登记房产
-router.post('/addEstate', async function(req, res, next) {
+router.post('/addEstate', function(req, res, next) {
   // 新增之前判断是否有重复
   if (
     req.body.params.estateBuilds &&
@@ -45,7 +45,7 @@ router.post('/addEstate', async function(req, res, next) {
     req.body.params.estateFloor &&
     req.body.params.estatePlate
   ) {
-    let estate = await models.estate
+    let estate = models.estate
       .findAll({
         where: {
           estateBuilds: req.body.params.estateBuilds,
@@ -54,20 +54,18 @@ router.post('/addEstate', async function(req, res, next) {
           estatePlate: req.body.params.estatePlate
         }
       })
-      .then(async estate => {
+      .then(estate => {
         if (estate.length != 0) {
           res.json({ state: 401, message: '该房产信息已存在' })
         } else {
-          const estate = await models.estate
-            .create(req.body.params)
-            .then(flag => {
-              if (flag) {
-                console.log(flag)
-                res.json({ state: 200, message: '添加成功' })
-              } else {
-                res.json({ state: 400 })
-              }
-            })
+          const estate = models.estate.create(req.body.params).then(flag => {
+            if (flag) {
+              console.log(flag)
+              res.json({ state: 200, message: '添加成功' })
+            } else {
+              res.json({ state: 400 })
+            }
+          })
         }
       })
   }
@@ -152,10 +150,10 @@ router.post('/searchEstateApplication', function(req, res, next) {
 })
 
 // 编辑未登记的房产信息
-router.post('/modifyEstateApplication', async function(req, res, next) {
+router.post('/modifyEstateApplication', function(req, res, next) {
   let estateInfo = req.body.params.estateInfo
   if (estateInfo) {
-    let estate = await models.estate
+    let estate = models.estate
       .findOne({
         where: {
           estateBuilds: estateInfo.estateBuilds,
@@ -164,10 +162,10 @@ router.post('/modifyEstateApplication', async function(req, res, next) {
           estatePlate: estateInfo.estatePlate
         }
       })
-      .then(async estate => {
+      .then(estate => {
         if (estate != null) {
           if (estate.id === estateInfo.id) {
-            let estate = await models.estate
+            let estate = models.estate
               .update(estateInfo, {
                 where: {
                   id: estateInfo.id
@@ -184,7 +182,7 @@ router.post('/modifyEstateApplication', async function(req, res, next) {
             res.json({ state: 401, message: '此房产信息重复，已存在' })
           }
         } else {
-          let estate = await models.estate
+          let estate = models.estate
             .update(estateInfo, {
               where: {
                 id: estateInfo.id
@@ -203,9 +201,9 @@ router.post('/modifyEstateApplication', async function(req, res, next) {
 })
 
 // 删除单个房产信息
-router.post('/deleteEstateApplication', async function(req, res, next) {
+router.post('/deleteEstateApplication', function(req, res, next) {
   let estateId = req.body.params.estateId
-  let estate = await models.estate
+  let estate = models.estate
     .destroy({
       where: {
         id: estateId
@@ -223,11 +221,11 @@ router.post('/deleteEstateApplication', async function(req, res, next) {
 // 批量删除房产信息
 router.post('/deleteEstateApplicationList', function(req, res, next) {
   let estateList = req.body.params.estateList
-  return new Promise(async (resolve, reject) => {
+  return new Promise((resolve, reject) => {
     if (!estateList) {
       reject(error)
     } else if (estateList.length != 0) {
-      await estateList.forEach(item => {
+      estateList.forEach(item => {
         let estate = models.estate.destroy({
           where: {
             id: item.id
@@ -246,7 +244,7 @@ router.post('/deleteEstateApplicationList', function(req, res, next) {
 })
 
 // 解除已登记的房产信息
-router.post('/reliveRegister', async function(req, res, next) {
+router.post('/reliveRegister', function(req, res, next) {
   let estateInfo = req.body.params.estateInfo
   let estateResgister = {
     estateResgister: '未登记',
@@ -255,7 +253,7 @@ router.post('/reliveRegister', async function(req, res, next) {
     ownerMoveDate: '',
     estateContent: ''
   }
-  let estateUpdate = await models.estate
+  let estateUpdate = models.estate
     .update(estateResgister, {
       where: {
         id: estateInfo.id
@@ -271,7 +269,7 @@ router.post('/reliveRegister', async function(req, res, next) {
 })
 
 // 搜索已登记的房产信息
-router.post('/searchRegisterApplication', async function(req, res, next) {
+router.post('/searchRegisterApplication', function(req, res, next) {
   let searchInfo = req.body.params.searchInfo
   if (!searchInfo.estateBuilds) {
     searchInfo.estateBuilds = ''
@@ -300,7 +298,7 @@ router.post('/searchRegisterApplication', async function(req, res, next) {
     },
     estateResgister: '已登记'
   }
-  const estate = await models.estate
+  const estate = models.estate
     .findAll({
       order: [['id', 'DESC']],
       where: where
@@ -312,5 +310,16 @@ router.post('/searchRegisterApplication', async function(req, res, next) {
         res.json({ state: 400 })
       }
     })
+})
+
+// 获取所有房产信息
+router.get('/getAllEstate', function(req, res, next) {
+  const estateList = models.estate.findAll().then(estateList => {
+    if (estateList != null) {
+      res.json({ state: 200, estateList: estateList })
+    } else {
+      res.json({ state: 400 })
+    }
+  })
 })
 module.exports = router
