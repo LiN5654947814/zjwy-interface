@@ -3,14 +3,16 @@ module.exports = (sequelize, DataTypes) => {
   const fix = sequelize.define(
     'fix',
     {
-      // 报修日期
+      // 报修时间
       fixStartTime: DataTypes.STRING,
       // 报修内容
       fixContent: DataTypes.STRING,
-      // 所在单元
+      // 业主所在单元
       fixOwnerUnit: DataTypes.STRING,
-      // 报修业主
+      // 业主
       fixOwner: DataTypes.STRING,
+      // 业主身份证
+      fixOwnerCard: DataTypes.STRING,
       // 联系电话
       fixOwnerPhone: DataTypes.STRING,
       // 完成时间

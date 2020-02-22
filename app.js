@@ -16,6 +16,8 @@ const complaint = require('./routes/complaint')
 const pay = require('./routes/pay')
 // 登录接口
 const login = require('./routes/login')
+// 首页接口
+const main = require('./routes/main')
 
 app.all('*', function(req, res, next) {
   // 设置跨域
@@ -39,6 +41,7 @@ app.use(parking)
 app.use(fix)
 app.use(complaint)
 app.use(pay)
+app.use(main)
 
 app.listen(3000, function() {
   console.log('Server Running 3000')

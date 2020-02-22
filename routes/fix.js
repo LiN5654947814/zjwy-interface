@@ -114,7 +114,7 @@ router.post('/getOwnerFix', function(req, res, next) {
     .findAll({
       where: {
         fixOwner: ownerInfo.ownerName,
-        fixOwnerPhone: ownerInfo.ownerPhone
+        fixOwnerCard: ownerInfo.ownerCard
       }
     })
     .then(ownerFixList => {

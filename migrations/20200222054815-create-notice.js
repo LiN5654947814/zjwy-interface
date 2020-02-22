@@ -1,32 +1,20 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('fixes', {
+    return queryInterface.createTable('notices', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      fixStartTime: {
+      noticeTitle: {
         type: Sequelize.STRING
       },
-      fixContent: {
+      noticeContent: {
         type: Sequelize.STRING
       },
-      fixOwnerUnit: {
-        type: Sequelize.STRING
-      },
-      fixOwner: {
-        type: Sequelize.STRING
-      },
-      fixOwnerPhone: {
-        type: Sequelize.STRING
-      },
-      fixEndTime: {
-        type: Sequelize.STRING
-      },
-      fixState: {
+      noticeTime: {
         type: Sequelize.STRING
       },
       createdAt: {
@@ -40,6 +28,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('fixes');
+    return queryInterface.dropTable('notices');
   }
 };

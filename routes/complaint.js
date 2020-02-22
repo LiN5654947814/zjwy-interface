@@ -111,8 +111,8 @@ router.post('/getOwnerComplaint', function(req, res, next) {
   const complaintList = models.complaint
     .findAll({
       where: {
-        complaintOwnerPhone: ownerInfo.ownerPhone,
-        complaintOwner: ownerInfo.ownerName
+        complaintOwner: ownerInfo.ownerName,
+        complaintOwnerCard: ownerInfo.ownerCard
       }
     })
     .then(complaintList => {
@@ -122,6 +122,18 @@ router.post('/getOwnerComplaint', function(req, res, next) {
         res.json({ state: 400 })
       }
     })
+})
+
+// 业主提交投诉信息
+router.post('/referOwnerComplaint', function(req, res, next) {
+  let complaintRefer = req.body.params.complaintRefer
+  const compliant = models.complaint.create(complaintRefer).then(complaint => {
+    if (complaint != null) {
+      res.json({ state: 200, message: '提交成功' })
+    } else {
+      res.json({ state: 400 })
+    }
+  })
 })
 
 module.exports = router
