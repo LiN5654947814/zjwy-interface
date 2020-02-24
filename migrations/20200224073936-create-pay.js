@@ -17,6 +17,9 @@ module.exports = {
       payOwnerUnit: {
         type: Sequelize.STRING
       },
+      payOwnerCard: {
+        type: Sequelize.STRING
+      },
       payGarbage: {
         type: Sequelize.INTEGER
       },
@@ -31,6 +34,9 @@ module.exports = {
       },
       payDate: {
         type: Sequelize.STRING
+      },
+      payCalling: {
+        type: Sequelize.BOOLEAN
       },
       createdAt: {
         allowNull: false,

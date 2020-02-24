@@ -14,6 +14,7 @@ module.exports = {
           payLighting: 50,
           payState: '未缴费',
           payDate: '2020-02',
+          payCalling: false,
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -26,6 +27,7 @@ module.exports = {
           payLighting: 50,
           payState: '已缴费',
           payDate: '2020-01',
+          payCalling: false,
           createdAt: new Date(),
           updatedAt: new Date()
         }

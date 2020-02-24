@@ -73,11 +73,13 @@ router.post('/payStateChange', function(req, res, next) {
 // 新增缴费信息
 router.post('/addPay', function(req, res, next) {
   let payInfo = req.body.params.payInfo
+  payInfo.payCalling = false
   const owner = models.owner
     .findOne({
       where: {
         ownerName: payInfo.payOwner,
-        ownerPhone: payInfo.payOwnerPhone
+        ownerPhone: payInfo.payOwnerPhone,
+        ownerCard: payInfo.payOwnerCard
       }
     })
     .then(owner => {
@@ -135,6 +137,79 @@ router.post('/deletePayList', function(req, res, next) {
     })
     .catch(error => {
       res.json({ state: 400 })
+    })
+})
+
+// 发送催缴信息
+router.post('/sendCalling', function(req, res, next) {
+  let payInfo = req.body.params.payInfo
+  payInfo.payCalling = true
+  const pay = models.pay
+    .findOne({
+      where: {
+        id: payInfo.id
+      }
+    })
+    .then(pay => {
+      if (pay.payCalling === true) {
+        res.json({ state: 202, message: '您已发送过催缴信息' })
+      } else if (pay.payState === '已缴费') {
+        res.json({ state: 204, message: '该业主已缴费' })
+      } else {
+        const pays = models.pay
+          .update(payInfo, {
+            where: {
+              id: payInfo.id
+            }
+          })
+          .then(payInfo => {
+            if (payInfo != null) {
+              res.json({ state: 200, message: '已发送催缴信息' })
+            }
+          })
+      }
+    })
+})
+// 获取单个收费信息
+router.post('/getOnwerPay', function(req, res, next) {
+  console.log(req.body.params.ownerInfo)
+  const ownerInfo = req.body.params.ownerInfo
+  const pay = models.pay
+    .findOne({
+      where: {
+        payOwner: ownerInfo.ownerName,
+        payOwnerCard: ownerInfo.ownerCard,
+        payDate: ownerInfo.payDate
+      }
+    })
+    .then(pay => {
+      if (pay != null) {
+        res.json({ state: 200, pay: pay })
+      } else {
+        res.json({ state: 400 })
+      }
+    })
+})
+
+// 业主确认催缴信息
+router.post('/receiveCalling', function(req, res, next) {
+  let ownerInfo = req.body.params.ownerInfo
+  ownerInfo.payCalling = false
+  console.log(ownerInfo)
+  const pay = models.pay
+    .update(ownerInfo, {
+      where: {
+        payOwner: ownerInfo.ownerName,
+        payOwnerCard: ownerInfo.ownerCard,
+        payDate: ownerInfo.payDate
+      }
+    })
+    .then(pay => {
+      if (pay != null) {
+        res.json({ state: 200 })
+      } else {
+        res.json({ state: 400 })
+      }
     })
 })
 module.exports = router
