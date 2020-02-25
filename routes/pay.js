@@ -212,4 +212,26 @@ router.post('/receiveCalling', function(req, res, next) {
       }
     })
 })
+
+// 查询所有收费信息，按月返回
+router.get('/getAllPayByMonth', async function(req, res, next) {
+  let currentList = new Array()
+  let y = new Date().getFullYear()
+  for (let i = 1; i <= 12; i++) {
+    let m = i
+    if (m <= 9) {
+      m = '0' + m
+    }
+    const pay = await models.pay.findAll({
+      where: {
+        payState: '已缴费',
+        payDate: y + '-' + m
+      }
+    })
+    console.log('查询一次')
+    let result = JSON.parse(JSON.stringify(pay))
+    currentList[i - 1] = result
+  }
+  res.json({ state: 200, currentList: currentList })
+})
 module.exports = router
