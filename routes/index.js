@@ -26,18 +26,6 @@ router.use((err, req, res, next) => {
   if (err && err.name === 'UnauthorizedError') {
     return res.json({ state: 404, message: '登录过期或无效，请重新登录' })
   }
-  // let token = req.body.token || req.query.token || req.headers['Authorization']
-  // if (token) {
-  //   jwt.verify(token, secret, (err, decoded) => {
-  //     if (err) {
-  //       return res.json({ state: 404, message: '登录过期或无效，请重新登录' })
-  //     } else {
-  //       return next()
-  //     }
-  //   })
-  // } else {
-  //   return res.json({ state: 500, message: '请求错误' })
-  // }
 })
 router.use(login)
 router.use(owners)

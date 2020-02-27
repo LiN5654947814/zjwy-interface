@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const models = require('../models')
 const Op = models.Sequelize.Op
+const writeXls = require('../export')
 
 // 获取所有登记的房产
 router.get('/getAllRegisterEstate', async function(req, res, next) {
@@ -321,5 +322,174 @@ router.get('/getAllEstate', function(req, res, next) {
       res.json({ state: 400 })
     }
   })
+})
+
+// 导出所有房产信息
+router.get('/exportEstate', async function(req, res, next) {
+  const estateList = await models.estate.findAll({
+    where: {
+      estateResgister: '已登记'
+    }
+  })
+  let estateListJson = JSON.parse(JSON.stringify(estateList))
+  let data = []
+  let options = {
+    '!cols': [
+      { wch: 7 },
+      { wch: 7 },
+      { wch: 7 },
+      { wch: 8 },
+      { wch: 7 },
+      { wch: 9 },
+      { wch: 7 },
+      { wch: 12 },
+      { wch: 20 }
+    ]
+  }
+  let title = [
+    '楼宇',
+    '单元',
+    '楼层',
+    '户型',
+    '门牌',
+    '面积(m²)',
+    '业主',
+    '迁入时间',
+    '备注'
+  ]
+  data.push(title)
+
+  estateListJson.forEach(item => {
+    let arrInner = []
+    arrInner.push(item.estateBuilds)
+    arrInner.push(item.estateUnit)
+    arrInner.push(item.estateFloor)
+    arrInner.push(item.estateApart)
+    arrInner.push(item.estatePlate)
+    arrInner.push(item.estateArea)
+    arrInner.push(item.estateOwner)
+    arrInner.push(item.ownerMoveDate)
+    arrInner.push(item.estateContent)
+    data.push(arrInner)
+  })
+  writeXls(data, options, res)
+})
+
+// 勾选导出未登记房产
+router.post('/exportEstateList', async function(req, res, next) {
+  const exportList = req.body.params.exportList
+  if (exportList.length === 0) {
+    return
+  }
+  let data = []
+  let options = {
+    '!cols': [
+      { wch: 7 },
+      { wch: 7 },
+      { wch: 7 },
+      { wch: 8 },
+      { wch: 7 },
+      { wch: 9 },
+      { wch: 7 },
+      { wch: 12 },
+      { wch: 20 }
+    ]
+  }
+  let title = [
+    '楼宇',
+    '单元',
+    '楼层',
+    '户型',
+    '门牌',
+    '面积(m²)',
+    '业主',
+    '迁入时间',
+    '备注'
+  ]
+  data.push(title)
+  exportList.forEach(item => {
+    let arrInner = []
+    arrInner.push(item.estateBuilds)
+    arrInner.push(item.estateUnit)
+    arrInner.push(item.estateFloor)
+    arrInner.push(item.estateApart)
+    arrInner.push(item.estatePlate)
+    arrInner.push(item.estateArea)
+    arrInner.push(item.estateOwner)
+    arrInner.push(item.ownerMoveDate)
+    arrInner.push(item.estateContent)
+    data.push(arrInner)
+  })
+  writeXls(data, options, res)
+})
+
+// 导出未登记房产
+router.get('/exportUnRegisterEstateExcel', async function(req, res, next) {
+  const estateList = await models.estate.findAll({
+    where: {
+      estateResgister: '未登记'
+    }
+  })
+  let data = []
+  let options = {
+    '!cols': [
+      { wch: 7 },
+      { wch: 7 },
+      { wch: 7 },
+      { wch: 8 },
+      { wch: 7 },
+      { wch: 9 },
+      { wch: 7 }
+    ]
+  }
+  let title = ['楼宇', '单元', '楼层', '户型', '门牌', '面积(m²)', '装修']
+  data.push(title)
+  const estateListJson = JSON.parse(JSON.stringify(estateList))
+  estateListJson.forEach(item => {
+    let arrInner = []
+    arrInner.push(item.estateBuilds)
+    arrInner.push(item.estateUnit)
+    arrInner.push(item.estateFloor)
+    arrInner.push(item.estateApart)
+    arrInner.push(item.estatePlate)
+    arrInner.push(item.estateArea)
+    arrInner.push(item.estateReno)
+    data.push(arrInner)
+  })
+  writeXls(data, options, res)
+})
+
+// 批量导出未登房产
+router.post('/exportUnRegisterEstateExcelList', async function(req, res, next) {
+  const exportList = req.body.params.exportList
+  if (exportList.length === 0) {
+    return
+  }
+  let data = []
+  let options = {
+    '!cols': [
+      { wch: 7 },
+      { wch: 7 },
+      { wch: 7 },
+      { wch: 8 },
+      { wch: 7 },
+      { wch: 9 },
+      { wch: 7 }
+    ]
+  }
+  let title = ['楼宇', '单元', '楼层', '户型', '门牌', '面积(m²)', '装修']
+  data.push(title)
+  exportList.forEach(item => {
+    let arrInner = []
+    arrInner.push(item.estateBuilds)
+    arrInner.push(item.estateUnit)
+    arrInner.push(item.estateFloor)
+    arrInner.push(item.estateApart)
+    arrInner.push(item.estatePlate)
+    arrInner.push(item.estateArea)
+    arrInner.push(item.estateReno)
+    data.push(arrInner)
+  })
+  writeXls(data, options, res)
 })
 module.exports = router

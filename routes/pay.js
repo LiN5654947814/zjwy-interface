@@ -172,7 +172,6 @@ router.post('/sendCalling', function(req, res, next) {
 })
 // 获取单个收费信息
 router.post('/getOnwerPay', function(req, res, next) {
-  console.log(req.body.params.ownerInfo)
   const ownerInfo = req.body.params.ownerInfo
   const pay = models.pay
     .findOne({
@@ -195,7 +194,6 @@ router.post('/getOnwerPay', function(req, res, next) {
 router.post('/receiveCalling', function(req, res, next) {
   let ownerInfo = req.body.params.ownerInfo
   ownerInfo.payCalling = false
-  console.log(ownerInfo)
   const pay = models.pay
     .update(ownerInfo, {
       where: {
