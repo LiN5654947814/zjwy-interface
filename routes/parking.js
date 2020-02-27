@@ -2,8 +2,9 @@ const express = require('express')
 const router = express.Router()
 const models = require('../models')
 const Op = models.Sequelize.Op
+const writeXls = require('../export')
 
-// 获取所有车位信息
+// 获取所有公有车位信息
 router.get('/getAllParking', function(req, res, next) {
   const parkingList = models.parking
     .findAll({
@@ -168,6 +169,13 @@ router.post('/deleteParkingList', function(req, res, next) {
 
 // 渲染私有车位
 router.get('/getAllRegisterParking', function(req, res, next) {
+  let y = new Date().getFullYear()
+  let m = new Date().getMonth() + 1
+  if (m <= 9) {
+    m = '0' + m
+  }
+  let d = new Date().getDate()
+  let nowDay = y + '-' + m + '-' + d
   const parkingList = models.parking
     .findAll({
       where: {
@@ -176,6 +184,14 @@ router.get('/getAllRegisterParking', function(req, res, next) {
     })
     .then(parkingList => {
       if (parkingList != null) {
+        parkingList = JSON.parse(JSON.stringify(parkingList))
+        parkingList.forEach(item => {
+          if (item.parkingEndTime <= nowDay) {
+            item.parkingStatus = '过期'
+          } else {
+            item.parkingStatus = '正常'
+          }
+        })
         res.json({ state: 200, parkingList: parkingList })
       } else {
         res.json({ state: 400 })
@@ -214,6 +230,16 @@ router.post('/reliveParking', function(req, res, next) {
 router.post('/modifyRegisterParking', async function(req, res, next) {
   console.log(req.body.params)
   let parkingInfo = req.body.params.parkingInfo
+  const parking = await models.parking.update(parkingInfo, {
+    where: {
+      id: parkingInfo.id
+    }
+  })
+  if (parking != null) {
+    res.json({ state: 200, message: '修改成功' })
+  } else {
+    res.json({ state: 400 })
+  }
 })
 
 // 搜索私有车位信息
@@ -254,22 +280,142 @@ router.post('/searchRegisterParking', function(req, res, next) {
       }
     })
 })
-
-// 变更报修信息
-router.post('/modifyFixDetail', function(req, res, next) {
-  let fixDetail = req.body.params.fixDetail
-  const fix = models.fix
-    .update(fixDetail, {
+// 获取业主车位信息
+router.post('/getParkingByOwner', function(req, res, next) {
+  let y = new Date().getFullYear()
+  let m = new Date().getMonth() + 1
+  if (m <= 9) {
+    m = '0' + m
+  }
+  let d = new Date().getDate()
+  let nowDay = y + '-' + m + '-' + d
+  const owner = req.body.params.ownerInfo
+  const parkingList = models.parking
+    .findAll({
       where: {
-        id: fixDetail.id
+        parkingOwner: owner.ownerName,
+        parkingOwnerCard: owner.ownerCard
       }
     })
-    .then(fix => {
-      if (fix != null) {
-        res.json({ state: 200, message: '变更成功' })
+    .then(parkingList => {
+      if (parkingList != null) {
+        parkingList = JSON.parse(JSON.stringify(parkingList))
+        parkingList.forEach(item => {
+          if (item.parkingEndTime <= nowDay) {
+            item.parkingStatus = '过期'
+          } else {
+            item.parkingStatus = '正常'
+          }
+        })
+        res.json({ state: 200, parkingList: parkingList })
       } else {
         res.json({ state: 400 })
       }
     })
+})
+
+// 导出私有车位表
+router.get('/exportParking', async function(req, res, next) {
+  const parkingList = await models.parking.findAll({
+    where: {
+      parkingType: '私有'
+    }
+  })
+  let data = []
+  let title = [
+    '车位编号',
+    '车位类型',
+    '车位租赁开始时间',
+    '车位租赁结束时间',
+    '业主',
+    '状态'
+  ]
+  let options = {
+    '!cols': [
+      { wch: 7 },
+      { wch: 7 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 7 },
+      { wch: 7 }
+    ]
+  }
+  data.push(title)
+
+  let y = new Date().getFullYear()
+  let m = new Date().getMonth() + 1
+  if (m <= 9) {
+    m = '0' + m
+  }
+  let d = new Date().getDate()
+  let nowDay = y + '-' + m + '-' + d
+  let parkingListJson = JSON.parse(JSON.stringify(parkingList))
+  parkingListJson.forEach(item => {
+    let arrInner = []
+    arrInner.push(item.parkingNum)
+    arrInner.push(item.parkingType)
+    arrInner.push(item.parkingStartTime)
+    arrInner.push(item.parkingEndTime)
+    arrInner.push(item.parkingOwner)
+    if (item.parkingEndTime <= nowDay) {
+      item.parkingStatus = '过期'
+      arrInner.push(item.parkingStatus)
+    } else {
+      item.parkingStatus = '正常'
+      arrInner.push(item.parkingStatus)
+    }
+    data.push(arrInner)
+  })
+  writeXls(data, options, res)
+})
+
+// 批量导出车位信息
+router.post('/exportParkingList', async function(req, res, next) {
+  const parkingList = req.body.params.parkingList
+  let data = []
+  let title = [
+    '车位编号',
+    '车位类型',
+    '车位租赁开始时间',
+    '车位租赁结束时间',
+    '业主',
+    '状态'
+  ]
+  let options = {
+    '!cols': [
+      { wch: 7 },
+      { wch: 7 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 7 },
+      { wch: 7 }
+    ]
+  }
+  data.push(title)
+
+  let y = new Date().getFullYear()
+  let m = new Date().getMonth() + 1
+  if (m <= 9) {
+    m = '0' + m
+  }
+  let d = new Date().getDate()
+  let nowDay = y + '-' + m + '-' + d
+  parkingList.forEach(item => {
+    let arrInner = []
+    arrInner.push(item.parkingNum)
+    arrInner.push(item.parkingType)
+    arrInner.push(item.parkingStartTime)
+    arrInner.push(item.parkingEndTime)
+    arrInner.push(item.parkingOwner)
+    if (item.parkingEndTime <= nowDay) {
+      item.parkingStatus = '过期'
+      arrInner.push(item.parkingStatus)
+    } else {
+      item.parkingStatus = '正常'
+      arrInner.push(item.parkingStatus)
+    }
+    data.push(arrInner)
+  })
+  writeXls(data, options, res)
 })
 module.exports = router

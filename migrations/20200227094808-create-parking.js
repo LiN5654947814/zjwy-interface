@@ -26,6 +26,9 @@ module.exports = {
       parkingOwnerCard: {
         type: Sequelize.STRING
       },
+      parkingStatus: {
+        type: Sequelize.STRING
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

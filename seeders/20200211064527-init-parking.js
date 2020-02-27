@@ -12,6 +12,7 @@ module.exports = {
           parkingEndTime: '',
           parkingOwner: '',
           parkingOwnerCard: '',
+          parkingStatus: '正常',
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -22,6 +23,7 @@ module.exports = {
           parkingEndTime: '',
           parkingOwner: '',
           parkingOwnerCard: '',
+          parkingStatus: '正常',
           createdAt: new Date(),
           updatedAt: new Date()
         },
@@ -32,6 +34,7 @@ module.exports = {
           parkingEndTime: '',
           parkingOwner: '',
           parkingOwnerCard: '',
+          parkingStatus: '正常',
           createdAt: new Date(),
           updatedAt: new Date()
         }

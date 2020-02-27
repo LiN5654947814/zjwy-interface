@@ -137,4 +137,22 @@ router.post('/referOwnerFix', function(req, res, next) {
     }
   })
 })
+
+// 变更报修信息
+router.post('/modifyFixDetail', function(req, res, next) {
+  let fixDetail = req.body.params.fixDetail
+  const fix = models.fix
+    .update(fixDetail, {
+      where: {
+        id: fixDetail.id
+      }
+    })
+    .then(fix => {
+      if (fix != null) {
+        res.json({ state: 200, message: '变更成功' })
+      } else {
+        res.json({ state: 400 })
+      }
+    })
+})
 module.exports = router

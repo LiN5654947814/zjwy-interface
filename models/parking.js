@@ -11,18 +11,17 @@ module.exports = (sequelize, DataTypes) => {
       parkingStartTime: DataTypes.STRING,
       // 车位租赁结束时间
       parkingEndTime: DataTypes.STRING,
-      // 所属业主
+      // 车位所属业主
       parkingOwner: DataTypes.STRING,
       // 业主身份证
-      parkingOwnerCard: DataTypes.STRING
+      parkingOwnerCard: DataTypes.STRING,
+      // 车位状态
+      parkingStatus: DataTypes.STRING
     },
     {}
   )
   parking.associate = function(models) {
-    models.parking.hasOne(models.owner, {
-      foreignKey: 'ownerCard',
-      sourceKey: 'parkingOwnerCard'
-    })
+    // associations can be defined here
   }
   return parking
 }
