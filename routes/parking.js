@@ -418,4 +418,81 @@ router.post('/exportParkingList', async function(req, res, next) {
   })
   writeXls(data, options, res)
 })
+
+// 导出公有车位信息
+router.get('/exportPakringApplication', async function(req, res, next) {
+  const parkingList = await models.parking.findAll({
+    where: {
+      parkingType: '公有'
+    }
+  })
+  let parkingListJson = JSON.parse(JSON.stringify(parkingList))
+  let data = []
+  let title = [
+    '车位编号',
+    '车位类型',
+    '车位租赁开始时间',
+    '车位租赁结束时间',
+    '业主',
+    '状态'
+  ]
+  let options = {
+    '!cols': [
+      { wch: 7 },
+      { wch: 7 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 7 },
+      { wch: 7 }
+    ]
+  }
+  data.push(title)
+  parkingListJson.forEach(item => {
+    let arrInner = []
+    arrInner.push(item.parkingNum)
+    arrInner.push(item.parkingType)
+    arrInner.push('')
+    arrInner.push('')
+    arrInner.push('')
+    arrInner.push(item.parkingStatus)
+    data.push(arrInner)
+  })
+  writeXls(data, options, res)
+})
+
+// 勾选导出公有车位信息
+router.post('/exportParkingApplicationList', async function(req, res, next) {
+  const parkingList = req.body.params.parkingList
+  let data = []
+  let title = [
+    '车位编号',
+    '车位类型',
+    '车位租赁开始时间',
+    '车位租赁结束时间',
+    '业主',
+    '状态'
+  ]
+  let options = {
+    '!cols': [
+      { wch: 7 },
+      { wch: 7 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 7 },
+      { wch: 7 }
+    ]
+  }
+  data.push(title)
+  parkingList.forEach(item => {
+    let arrInner = []
+    arrInner.push(item.parkingNum)
+    arrInner.push(item.parkingType)
+    arrInner.push('')
+    arrInner.push('')
+    arrInner.push('')
+    arrInner.push(item.parkingStatus)
+    data.push(arrInner)
+  })
+  writeXls(data, options, res)
+})
 module.exports = router

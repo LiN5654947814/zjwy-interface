@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const models = require('../models')
 const Op = models.Sequelize.Op
+const writeXls = require('../export')
 
 // 获取所有收费信息
 router.get('/getAllPay', function(req, res, next) {
@@ -231,5 +232,94 @@ router.get('/getAllPayByMonth', async function(req, res, next) {
     currentList[i - 1] = result
   }
   res.json({ state: 200, currentList: currentList })
+})
+
+// 导出所有收费信息
+router.get('/exportPay', async function(req, res, next) {
+  const payList = await models.pay.findAll()
+  const payListJson = JSON.parse(JSON.stringify(payList))
+  let data = []
+  let title = [
+    '业主',
+    '所在单元',
+    '电梯使用费',
+    '垃圾清运费',
+    '公摊照明费',
+    '续费时间',
+    '状态',
+    '合计'
+  ]
+  data.push(title)
+  let options = {
+    '!cols': [
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 8 },
+      { wch: 8 }
+    ]
+  }
+  payListJson.forEach(item => {
+    let arrInner = []
+    arrInner.push(item.payOwner)
+    arrInner.push(item.payOwnerUnit)
+    arrInner.push(item.payElevator)
+    arrInner.push(item.payGarbage)
+    arrInner.push(item.payLighting)
+    arrInner.push(item.payDate)
+    arrInner.push(item.payState)
+    item.payCount = item.payElevator + item.payLighting + item.payGarbage
+    arrInner.push(item.payCount)
+    data.push(arrInner)
+  })
+
+  writeXls(data, options, res)
+})
+
+// 勾选导出
+router.post('/exportPayList', async function(req, res, next) {
+  const payList = req.body.params.payList
+  let data = []
+  let title = [
+    '业主',
+    '所在单元',
+    '电梯使用费',
+    '垃圾清运费',
+    '公摊照明费',
+    '续费时间',
+    '状态',
+    '合计'
+  ]
+  data.push(title)
+  let options = {
+    '!cols': [
+      { wch: 10 },
+      { wch: 10 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 15 },
+      { wch: 8 },
+      { wch: 8 }
+    ]
+  }
+  payList.forEach(item => {
+    let arrInner = []
+    arrInner.push(item.payOwner)
+    arrInner.push(item.payOwnerUnit)
+    arrInner.push(item.payElevator)
+    arrInner.push(item.payGarbage)
+    arrInner.push(item.payLighting)
+    arrInner.push(item.payDate)
+    arrInner.push(item.payState)
+    item.payCount = item.payElevator + item.payLighting + item.payGarbage
+    arrInner.push(item.payCount)
+    data.push(arrInner)
+  })
+
+  writeXls(data, options, res)
 })
 module.exports = router
