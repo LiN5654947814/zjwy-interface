@@ -14,10 +14,10 @@ module.exports = {
       payOwnerPhone: {
         type: Sequelize.STRING
       },
-      payOwnerUnit: {
+      payOwnerCard: {
         type: Sequelize.STRING
       },
-      payOwnerCard: {
+      payOwnerUnit: {
         type: Sequelize.STRING
       },
       payGarbage: {
@@ -27,6 +27,9 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       payLighting: {
+        type: Sequelize.INTEGER
+      },
+      payApplication: {
         type: Sequelize.INTEGER
       },
       payState: {

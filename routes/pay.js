@@ -18,6 +18,7 @@ router.get('/getAllPay', function(req, res, next) {
 // 按条件搜索缴费信息
 router.post('/searchPay', function(req, res, next) {
   let paySearch = req.body.params.paySearch
+  console.log(paySearch)
   if (!paySearch.payOwner) {
     paySearch.payOwner = ''
   }
@@ -44,7 +45,7 @@ router.post('/searchPay', function(req, res, next) {
       order: [['id', 'ASC']]
     })
     .then(payList => {
-      if (payList != null) {
+      if (payList != null && payList.length === 0) {
         res.json({ state: 200, payList: payList })
       } else {
         res.json({ state: 400 })
@@ -79,7 +80,6 @@ router.post('/addPay', function(req, res, next) {
     .findOne({
       where: {
         ownerName: payInfo.payOwner,
-        ownerPhone: payInfo.payOwnerPhone,
         ownerCard: payInfo.payOwnerCard
       }
     })
@@ -93,7 +93,7 @@ router.post('/addPay', function(req, res, next) {
           }
         })
       } else {
-        res.json({ state: 401, message: '用户不存在或与手机号不匹配，请检查' })
+        res.json({ state: 401, message: '用户不存在或信息不匹配，请检查' })
       }
     })
 })
@@ -186,7 +186,7 @@ router.post('/getOnwerPay', function(req, res, next) {
       if (pay != null) {
         res.json({ state: 200, pay: pay })
       } else {
-        res.json({ state: 400 })
+        res.json({ state: 401, message: '当月缴费单未出' })
       }
     })
 })
@@ -245,6 +245,7 @@ router.get('/exportPay', async function(req, res, next) {
     '电梯使用费',
     '垃圾清运费',
     '公摊照明费',
+    '公共管理费',
     '续费时间',
     '状态',
     '合计'
@@ -254,6 +255,7 @@ router.get('/exportPay', async function(req, res, next) {
     '!cols': [
       { wch: 10 },
       { wch: 10 },
+      { wch: 15 },
       { wch: 15 },
       { wch: 15 },
       { wch: 15 },
@@ -269,9 +271,14 @@ router.get('/exportPay', async function(req, res, next) {
     arrInner.push(item.payElevator)
     arrInner.push(item.payGarbage)
     arrInner.push(item.payLighting)
+    arrInner.push(item.payApplication)
     arrInner.push(item.payDate)
     arrInner.push(item.payState)
-    item.payCount = item.payElevator + item.payLighting + item.payGarbage
+    item.payCount =
+      item.payElevator +
+      item.payLighting +
+      item.payGarbage +
+      item.payApplication
     arrInner.push(item.payCount)
     data.push(arrInner)
   })
@@ -289,6 +296,7 @@ router.post('/exportPayList', async function(req, res, next) {
     '电梯使用费',
     '垃圾清运费',
     '公摊照明费',
+    '公共管理费',
     '续费时间',
     '状态',
     '合计'
@@ -298,6 +306,7 @@ router.post('/exportPayList', async function(req, res, next) {
     '!cols': [
       { wch: 10 },
       { wch: 10 },
+      { wch: 15 },
       { wch: 15 },
       { wch: 15 },
       { wch: 15 },
@@ -313,9 +322,14 @@ router.post('/exportPayList', async function(req, res, next) {
     arrInner.push(item.payElevator)
     arrInner.push(item.payGarbage)
     arrInner.push(item.payLighting)
+    arrInner.push(item.payApplication)
     arrInner.push(item.payDate)
     arrInner.push(item.payState)
-    item.payCount = item.payElevator + item.payLighting + item.payGarbage
+    item.payCount =
+      item.payElevator +
+      item.payLighting +
+      item.payGarbage +
+      item.payApplication
     arrInner.push(item.payCount)
     data.push(arrInner)
   })
