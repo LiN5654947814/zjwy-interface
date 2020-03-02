@@ -115,81 +115,29 @@ router.post('/deleteOwners', function(req, res, next) {
 
 // 搜索功能
 router.post('/searchOwner', function(req, res, next) {
-  let where = {}
-  // 业主名不为空，日期为空时
-  if (
-    req.body.params.ownerName != '' &&
-    req.body.params.ownerMoveDate.length === 0
-  ) {
-    where.ownerName = {
-      [Op.like]: '%' + req.body.params.ownerName + '%'
+  let ownerName = req.body.params.ownerName
+  let ownerMoveDate = req.body.params.ownerMoveDate
+  let where = {
+    estateOwner: {
+      [Op.like]: '%' + ownerName + '%'
+    },
+    ownerMoveDate: {
+      [Op.between]: [ownerMoveDate[0], ownerMoveDate[1]]
     }
-    let owner = models.owner
-      .findAll({
-        order: [['id', 'DESC']],
-        where: where,
-        include: [models.estate]
-      })
-      .then(owners => {
-        if (owners != null) {
-          res.json({ state: 200, ownerInfo: owners })
-        } else {
-          res.json({ state: 400 })
-        }
-      })
   }
-  // 业主名为空，日期不为空
-  if (
-    req.body.params.ownerMoveDate.length != 0 &&
-    req.body.params.ownerName === ''
-  ) {
-    where.ownerMoveDate = {
-      [Op.between]: [
-        req.body.params.ownerMoveDate[0],
-        req.body.params.ownerMoveDate[1]
-      ]
-    }
-    let owner = models.estate.findAll({
-      order: [['id', 'DESC']],
+  const ownerInfo = models.estate
+    .findAll({
       where: where,
       include: [models.owner]
     })
-    res.json({ state: 200, ownerInfo: owner })
-  }
-  // 业主名和日期都不为空时
-  if (
-    req.body.params.ownerMoveDate.length != 0 &&
-    req.body.params.ownerName != ''
-  ) {
-    where.ownerMoveDate = {
-      [Op.between]: [
-        req.body.params.ownerMoveDate[0],
-        req.body.params.ownerMoveDate[1]
-      ]
-    }
-    where.estateOwner = {
-      [Op.like]: '%' + req.body.params.ownerName + '%'
-    }
-    let owner = models.estate.findAll({
-      order: [['id', 'DESC']],
-      where: where,
-      include: [models.owner]
-    })
-    res.json({ state: 200, ownerInfo: owner })
-  }
-  // 都为空时
-  if (
-    req.body.params.ownerMoveDate.length === 0 &&
-    req.body.params.ownerName === ''
-  ) {
-    const owner = models.owner.findAll().then(owners => {
-      if (owners != null) {
-        res.json({ state: 200, owners: owners })
+    .then(ownerInfo => {
+      console.log(ownerInfo)
+      if (ownerInfo != null) {
+        res.json({ state: 200, ownerInfo: ownerInfo })
       } else {
         res.json({ state: 400 })
       }
     })
-  }
 })
 
 // 更新/编辑业主信息

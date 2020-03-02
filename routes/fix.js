@@ -55,13 +55,26 @@ router.post('/searchFix', function(req, res, next) {
 router.post('/addFix', function(req, res, next) {
   console.log(req.body.params)
   let fixInfo = req.body.params.fixInfo
-  const fix = models.fix.create(fixInfo).then(fix => {
-    if (fix != null) {
-      res.json({ state: 200, message: '添加成功' })
-    } else {
-      res.json({ state: 400 })
-    }
-  })
+  let owner = models.owner
+    .findOne({
+      where: {
+        ownerName: fixInfo.fixOwner,
+        ownerPhone: fixInfo.fixOwnerPhone
+      }
+    })
+    .then(owner => {
+      if (owner != null) {
+        const fix = models.fix.create(fixInfo).then(fix => {
+          if (fix != null) {
+            res.json({ state: 200, message: '添加成功' })
+          } else {
+            res.json({ state: 400 })
+          }
+        })
+      } else {
+        res.json({ state: 401, message: '业主不存在或手机号匹配错误' })
+      }
+    })
 })
 
 // 删除报修信息
@@ -141,17 +154,31 @@ router.post('/referOwnerFix', function(req, res, next) {
 // 变更报修信息
 router.post('/modifyFixDetail', function(req, res, next) {
   let fixDetail = req.body.params.fixDetail
-  const fix = models.fix
-    .update(fixDetail, {
+  console.log(fixDetail)
+  const owner = models.owner
+    .findOne({
       where: {
-        id: fixDetail.id
+        ownerName: fixDetail.fixOwner,
+        ownerPhone: fixDetail.fixOwnerPhone
       }
     })
-    .then(fix => {
-      if (fix != null) {
-        res.json({ state: 200, message: '变更成功' })
+    .then(owner => {
+      if (owner != null) {
+        const fix = models.fix
+          .update(fixDetail, {
+            where: {
+              id: fixDetail.id
+            }
+          })
+          .then(fix => {
+            if (fix != null) {
+              res.json({ state: 200, message: '变更成功' })
+            } else {
+              res.json({ state: 400 })
+            }
+          })
       } else {
-        res.json({ state: 400 })
+        res.json({ state: 401, message: '业主不存在或联系方式不匹配' })
       }
     })
 })
