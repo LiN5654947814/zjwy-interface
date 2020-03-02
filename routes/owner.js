@@ -125,19 +125,37 @@ router.post('/searchOwner', function(req, res, next) {
       [Op.between]: [ownerMoveDate[0], ownerMoveDate[1]]
     }
   }
-  const ownerInfo = models.estate
-    .findAll({
-      where: where,
-      include: [models.owner]
-    })
-    .then(ownerInfo => {
-      console.log(ownerInfo)
-      if (ownerInfo != null) {
-        res.json({ state: 200, ownerInfo: ownerInfo })
-      } else {
-        res.json({ state: 400 })
-      }
-    })
+  if (ownerMoveDate.length != 0) {
+    const ownerInfo = models.estate
+      .findAll({
+        where: where,
+        include: [models.owner]
+      })
+      .then(ownerInfo => {
+        if (ownerInfo != null) {
+          res.json({ state: 200, ownerInfo: ownerInfo })
+        } else {
+          res.json({ state: 400 })
+        }
+      })
+  } else {
+    const ownerInfo = models.estate
+      .findAll({
+        where: {
+          estateOwner: {
+            [Op.like]: '%' + ownerName + '%'
+          }
+        },
+        include: [models.owner]
+      })
+      .then(ownerInfo => {
+        if (ownerInfo != null) {
+          res.json({ state: 200, ownerInfo: ownerInfo })
+        } else {
+          res.json({ state: 400 })
+        }
+      })
+  }
 })
 
 // 更新/编辑业主信息
