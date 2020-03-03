@@ -45,7 +45,7 @@ router.post('/searchPay', function(req, res, next) {
       order: [['id', 'ASC']]
     })
     .then(payList => {
-      if (payList != null && payList.length === 0) {
+      if (payList != null) {
         res.json({ state: 200, payList: payList })
       } else {
         res.json({ state: 400 })
@@ -236,9 +236,12 @@ router.get('/getAllPayByMonth', async function(req, res, next) {
 
 // 导出所有收费信息
 router.get('/exportPay', async function(req, res, next) {
+  // 获取数据库信息
   const payList = await models.pay.findAll()
+  // 转化为JSON数组对象
   const payListJson = JSON.parse(JSON.stringify(payList))
   let data = []
+  // 生成表头
   let title = [
     '业主',
     '所在单元',

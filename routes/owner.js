@@ -190,7 +190,7 @@ router.post('/searchOwner', function(req, res, next) {
 
 // 更新/编辑业主信息
 router.post('/modifyOwner', function(req, res, next) {
-  // 新增之前判断身份证是否唯一
+  // 新增之前判断身份证邮箱是否唯一
   if (req.body.params.ownerCard) {
     let owner = models.owner
       .findOne({
@@ -303,11 +303,14 @@ router.post('/modifyPassword', function(req, res, next) {
 
 // 导出全部Excel文件
 router.get('/exportOwnerExcel', async function(req, res, next) {
+  // 从数据库查询信息
   const ownerList = await models.owner.findAll({
     include: [models.estate, models.parking]
   })
+  // 转化为JSON数组对象格式
   let ownerListJson = JSON.parse(JSON.stringify(ownerList))
   let data = []
+  // 设置excel列样式
   let options = {
     '!cols': [
       { wch: 6 },
@@ -321,6 +324,7 @@ router.get('/exportOwnerExcel', async function(req, res, next) {
       { wch: 20 }
     ]
   }
+  // 生成excel表头
   let title = [
     '姓名',
     '性别',
@@ -340,6 +344,7 @@ router.get('/exportOwnerExcel', async function(req, res, next) {
       currentList.push(item)
     }
   })
+  // 导入数据
   currentList.forEach((item, index) => {
     let arrInner = []
     arrInner.push(item.ownerName)

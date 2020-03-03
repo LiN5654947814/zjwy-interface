@@ -17,6 +17,7 @@ router.get('/getAllFix', function(req, res, next) {
 // 按条件搜索报修信息
 router.post('/searchFix', function(req, res, next) {
   let fixInfo = req.body.params.fixInfo
+  console.log(fixInfo)
   if (!fixInfo.fixStartTime) {
     fixInfo.fixStartTime = ''
   }
@@ -59,10 +60,11 @@ router.post('/addFix', function(req, res, next) {
     .findOne({
       where: {
         ownerName: fixInfo.fixOwner,
-        ownerPhone: fixInfo.fixOwnerPhone
+        ownerPhone: fixDetail.fixOwnerPhone
       }
     })
     .then(owner => {
+      console.log(owner)
       if (owner != null) {
         const fix = models.fix.create(fixInfo).then(fix => {
           if (fix != null) {

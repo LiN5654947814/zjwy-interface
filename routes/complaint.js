@@ -30,6 +30,7 @@ router.post('/searchComplaint', function(req, res, next) {
       [Op.like]: '%' + complaintSearch.complaintType + '%'
     }
   }
+  console.log(complaintSearch)
   const complaintList = models.complaint
     .findAll({
       where: where

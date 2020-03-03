@@ -62,4 +62,22 @@ router.post('/getNoticeById', function(req, res, next) {
     })
 })
 
+// 删除公告信息
+router.post('/deleteNoticeById', function(req, res, next) {
+  let deleteId = req.body.params.noticeId
+  const noticeDelete = models.notice
+    .destroy({
+      where: {
+        id: deleteId
+      }
+    })
+    .then(notice => {
+      if (notice != null) {
+        res.json({ state: 200, message: '删除成功' })
+      } else {
+        res.json({ state: 400 })
+      }
+    })
+})
+
 module.exports = router

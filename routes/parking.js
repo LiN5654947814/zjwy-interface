@@ -175,7 +175,11 @@ router.get('/getAllRegisterParking', function(req, res, next) {
     m = '0' + m
   }
   let d = new Date().getDate()
+  if (d <= 9) {
+    d = '0' + d
+  }
   let nowDay = y + '-' + m + '-' + d
+  console.log(nowDay)
   const parkingList = models.parking
     .findAll({
       where: {
@@ -244,6 +248,16 @@ router.post('/modifyRegisterParking', async function(req, res, next) {
 
 // 搜索私有车位信息
 router.post('/searchRegisterParking', function(req, res, next) {
+  let y = new Date().getFullYear()
+  let m = new Date().getMonth() + 1
+  if (m <= 9) {
+    m = '0' + m
+  }
+  let d = new Date().getDate()
+  if (d <= 9) {
+    d = '0' + d
+  }
+  let nowDay = y + '-' + m + '-' + d
   let keyWrods = req.body.params.parkingSearch
   if (!keyWrods.parkingNum) {
     keyWrods.parkingNum = ''
@@ -274,6 +288,14 @@ router.post('/searchRegisterParking', function(req, res, next) {
     })
     .then(parkingList => {
       if (parkingList != null) {
+        parkingList = JSON.parse(JSON.stringify(parkingList))
+        parkingList.forEach(item => {
+          if (item.parkingEndTime <= nowDay) {
+            item.parkingStatus = '过期'
+          } else {
+            item.parkingStatus = '正常'
+          }
+        })
         res.json({ state: 200, parkingList: parkingList })
       } else {
         res.json({ state: 400 })
@@ -288,6 +310,9 @@ router.post('/getParkingByOwner', function(req, res, next) {
     m = '0' + m
   }
   let d = new Date().getDate()
+  if (d <= 9) {
+    d = '0' + d
+  }
   let nowDay = y + '-' + m + '-' + d
   const owner = req.body.params.ownerInfo
   const parkingList = models.parking
@@ -348,6 +373,9 @@ router.get('/exportParking', async function(req, res, next) {
     m = '0' + m
   }
   let d = new Date().getDate()
+  if (d <= 9) {
+    d = '0' + d
+  }
   let nowDay = y + '-' + m + '-' + d
   let parkingListJson = JSON.parse(JSON.stringify(parkingList))
   parkingListJson.forEach(item => {
@@ -399,6 +427,9 @@ router.post('/exportParkingList', async function(req, res, next) {
     m = '0' + m
   }
   let d = new Date().getDate()
+  if (d <= 9) {
+    d = '0' + d
+  }
   let nowDay = y + '-' + m + '-' + d
   parkingList.forEach(item => {
     let arrInner = []
