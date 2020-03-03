@@ -94,8 +94,24 @@ router.post('/estateRegister', function(req, res, next) {
               }
             })
             .then(register => {
-              if (register) {
-                res.json({ state: 200, message: '登记成功' })
+              if (register != null) {
+                const ownerUpdate = models.owner
+                  .update(
+                    { ownerMoveDate: req.body.params.ownerMoveDate },
+                    {
+                      where: {
+                        ownerCard: req.body.params.estateOwnerCard,
+                        ownerName: req.body.params.estateOwner
+                      }
+                    }
+                  )
+                  .then(owner => {
+                    if (owner != null) {
+                      res.json({ state: 200, message: '登记成功' })
+                    } else {
+                      res.json({ state: 400 })
+                    }
+                  })
               } else {
                 res.json({ state: 400 })
               }

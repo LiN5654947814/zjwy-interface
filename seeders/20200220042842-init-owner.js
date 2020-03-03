@@ -12,6 +12,7 @@ module.exports = {
           ownerSex: '男',
           ownerEmail: '123@qq.com',
           originalPassword: '123456',
+          ownerMoveDate: '',
           author: false,
           createdAt: new Date(),
           updatedAt: new Date()
@@ -23,6 +24,7 @@ module.exports = {
           ownerSex: '男',
           ownerEmail: '77@qq.com',
           originalPassword: '123456',
+          ownerMoveDate: '',
           author: false,
           createdAt: new Date(),
           updatedAt: new Date()
@@ -34,6 +36,7 @@ module.exports = {
           ownerSex: '男',
           ownerEmail: 'acf@qq.com',
           originalPassword: '123456',
+          ownerMoveDate: '',
           author: false,
           createdAt: new Date(),
           updatedAt: new Date()

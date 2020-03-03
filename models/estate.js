@@ -35,6 +35,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'ownerCard',
       sourceKey: 'estateOwnerCard'
     })
+    models.estate.hasOne(models.parking, {
+      foreignKey: 'parkingOwnerCard',
+      sourceKey: 'estateOwnerCard'
+    })
   }
   return estate
 }

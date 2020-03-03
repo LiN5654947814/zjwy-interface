@@ -13,6 +13,7 @@ module.exports = {
           ownerEmail: 'admin',
           originalPassword: 'admin',
           author: true,
+          ownerMoveDate: '',
           createdAt: new Date(),
           updatedAt: new Date()
         }

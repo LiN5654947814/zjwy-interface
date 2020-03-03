@@ -115,21 +115,21 @@ router.post('/deleteOwners', function(req, res, next) {
 
 // 搜索功能
 router.post('/searchOwner', function(req, res, next) {
-  let ownerName = req.body.params.ownerName
-  let ownerMoveDate = req.body.params.ownerMoveDate
-  let where = {
-    estateOwner: {
-      [Op.like]: '%' + ownerName + '%'
-    },
-    ownerMoveDate: {
-      [Op.between]: [ownerMoveDate[0], ownerMoveDate[1]]
-    }
-  }
-  if (ownerMoveDate.length != 0) {
-    const ownerInfo = models.estate
+  let ownerSearch = req.body.params.currentInfo
+  console.log(ownerSearch)
+  if (
+    ownerSearch.ownerName.trim().length !== 0 &&
+    ownerSearch.moveDate.length === 0
+  ) {
+    console.log('姓名不为空，日期为空')
+    const ownerList = models.owner
       .findAll({
-        where: where,
-        include: [models.owner]
+        where: {
+          ownerName: {
+            [Op.like]: '%' + ownerSearch.ownerName + '%'
+          }
+        },
+        include: [models.estate, models.parking]
       })
       .then(ownerInfo => {
         if (ownerInfo != null) {
@@ -138,17 +138,47 @@ router.post('/searchOwner', function(req, res, next) {
           res.json({ state: 400 })
         }
       })
-  } else {
-    const ownerInfo = models.estate
+  } else if (
+    ownerSearch.moveDate.length !== 0 &&
+    ownerSearch.ownerName.trim().length === 0
+  ) {
+    console.log('姓名为空，日期不为空')
+    const ownerList = models.owner
       .findAll({
         where: {
-          estateOwner: {
-            [Op.like]: '%' + ownerName + '%'
+          ownerMoveDate: {
+            [Op.between]: [ownerSearch.moveDate[0], ownerSearch.moveDate[1]]
           }
         },
-        include: [models.owner]
+        include: [models.estate, models.parking]
       })
       .then(ownerInfo => {
+        console.log(ownerInfo)
+        if (ownerInfo != null) {
+          res.json({ state: 200, ownerInfo: ownerInfo })
+        } else {
+          res.json({ state: 400 })
+        }
+      })
+  } else if (
+    ownerSearch.ownerName.trim().length !== 0 &&
+    ownerSearch.moveDate.length !== 0
+  ) {
+    console.log('姓名不为空，日期不为空')
+    const ownerList = models.owner
+      .findAll({
+        where: {
+          ownerMoveDate: {
+            [Op.between]: [ownerSearch.moveDate[0], ownerSearch.moveDate[1]]
+          },
+          ownerName: {
+            [Op.like]: '%' + ownerSearch.ownerName + '%'
+          }
+        },
+        include: [models.estate, models.parking]
+      })
+      .then(ownerInfo => {
+        console.log(ownerInfo)
         if (ownerInfo != null) {
           res.json({ state: 200, ownerInfo: ownerInfo })
         } else {
@@ -284,6 +314,8 @@ router.get('/exportOwnerExcel', async function(req, res, next) {
       { wch: 7 },
       { wch: 20 },
       { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
       { wch: 7 },
       { wch: 7 },
       { wch: 20 }
@@ -292,6 +324,8 @@ router.get('/exportOwnerExcel', async function(req, res, next) {
   let title = [
     '姓名',
     '性别',
+    '身份证',
+    '邮箱',
     '联系手机号',
     '所在楼宇单元',
     '房产数',
@@ -310,6 +344,8 @@ router.get('/exportOwnerExcel', async function(req, res, next) {
     let arrInner = []
     arrInner.push(item.ownerName)
     arrInner.push(item.ownerSex)
+    arrInner.push(item.ownerCard)
+    arrInner.push(item.ownerEmail)
     arrInner.push(item.ownerPhone)
     if (item.estates.length != 0) {
       arrInner.push(
@@ -320,22 +356,22 @@ router.get('/exportOwnerExcel', async function(req, res, next) {
           item.estates[0].estatePlate
       )
     } else {
-      arrInner.push('')
+      arrInner.push('未登记')
     }
     if (item.estates.length != 0) {
       arrInner.push(item.estates.length)
     } else {
-      arrInner.push('')
+      arrInner.push('0')
     }
     if (item.parkings.length != 0) {
       arrInner.push(item.parkings.length)
     } else {
-      arrInner.push('')
+      arrInner.push('0')
     }
     if (item.estates.length != 0) {
       arrInner.push(item.estates[0].ownerMoveDate)
     } else {
-      arrInner.push('')
+      arrInner.push('未迁入')
     }
 
     data.push(arrInner)
@@ -356,6 +392,8 @@ router.post('/exportOwnerExcelBySelect', async function(req, res, next) {
       { wch: 7 },
       { wch: 20 },
       { wch: 20 },
+      { wch: 20 },
+      { wch: 20 },
       { wch: 7 },
       { wch: 7 },
       { wch: 20 }
@@ -364,6 +402,8 @@ router.post('/exportOwnerExcelBySelect', async function(req, res, next) {
   let title = [
     '姓名',
     '性别',
+    '身份证',
+    '邮箱',
     '联系手机号',
     '所在楼宇单元',
     '房产数',
@@ -375,6 +415,8 @@ router.post('/exportOwnerExcelBySelect', async function(req, res, next) {
     let arrInner = []
     arrInner.push(item.ownerName)
     arrInner.push(item.ownerSex)
+    arrInner.push(item.ownerCard)
+    arrInner.push(item.ownerEmail)
     arrInner.push(item.ownerPhone)
     if (item.estates.length != 0) {
       arrInner.push(
@@ -385,22 +427,22 @@ router.post('/exportOwnerExcelBySelect', async function(req, res, next) {
           item.estates[0].estatePlate
       )
     } else {
-      arrInner.push('')
+      arrInner.push('未登记')
     }
     if (item.estates.length != 0) {
       arrInner.push(item.estates.length)
     } else {
-      arrInner.push('')
+      arrInner.push('0')
     }
     if (item.parkings.length != 0) {
       arrInner.push(item.parkings.length)
     } else {
-      arrInner.push('')
+      arrInner.push('0')
     }
     if (item.estates.length != 0) {
       arrInner.push(item.estates[0].ownerMoveDate)
     } else {
-      arrInner.push('')
+      arrInner.push('未迁入')
     }
     data.push(arrInner)
   })

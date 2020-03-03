@@ -29,6 +29,9 @@ module.exports = {
       author: {
         type: Sequelize.BOOLEAN
       },
+      ownerMoveDate: {
+        type: Sequelize.STRING
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
