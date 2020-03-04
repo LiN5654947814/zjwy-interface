@@ -1,7 +1,7 @@
 const xlsx = require('node-xlsx')
 const path = require('path')
 async function writeXls(datas, options, res) {
-  // 通过插件生成excel文件流
+  // 通过插件生成excel的二进制
   let buffers = await xlsx.build(
     [
       {

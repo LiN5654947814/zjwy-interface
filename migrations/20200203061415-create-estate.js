@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('estates', {
@@ -41,6 +41,9 @@ module.exports = {
       estateContent: {
         type: Sequelize.STRING
       },
+      ownerMoveDate: {
+        type: Sequelize.STRING
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE
@@ -49,9 +52,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       }
-    });
+    })
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('estates');
+    return queryInterface.dropTable('estates')
   }
-};
+}

@@ -3,6 +3,7 @@ const router = express.Router()
 const models = require('../models')
 const Op = models.Sequelize.Op
 const writeXls = require('../export')
+const tools = require('../tools')
 
 // 查询所有业主
 router.get('/getAllOwner', function(req, res, next) {
@@ -21,12 +22,60 @@ router.get('/getAllOwner', function(req, res, next) {
 
 // 新增业主信息
 router.post('/addOwner', function(req, res, next) {
+  let tool = new tools()
+  let ownerInfo = req.body.params.owner
+  ownerInfo.ownerMoveDate = ''
+  ownerInfo.author = false
+  // 邮箱正则验证
+  console.log(ownerInfo)
+  if (
+    !ownerInfo.ownerName &&
+    !ownerInfo.ownerEmail &&
+    !ownerInfo.ownerCard &&
+    !ownerInfo.ownerPhone &&
+    !ownerInfo.ownerSex &&
+    !ownerInfo.originalPassword
+  ) {
+    res.json({ state: 401, message: '请输入相应的业主信息' })
+  } else if (!ownerInfo.ownerName || ownerInfo.ownerName.trim().length === 0) {
+    res.json({ state: 401, message: '业主姓名不能为空' })
+  } else if (
+    !ownerInfo.ownerEmail ||
+    ownerInfo.ownerEmail.trim().length === 0
+  ) {
+    res.json({ state: 401, message: '业主邮箱不能为空' })
+  } else if (!ownerInfo.ownerCard || ownerInfo.ownerCard.trim().length === 0) {
+    res.json({ state: 401, message: '业主身份证不能为空' })
+  } else if (
+    !ownerInfo.ownerPhone ||
+    ownerInfo.ownerPhone.trim().length === 0
+  ) {
+    res.json({ state: 401, message: '业主手机不能为空' })
+  } else if (!ownerInfo.ownerSex || ownerInfo.ownerSex.trim().length === 0) {
+    res.json({ state: 401, message: '业主性别不能为空' })
+  } else if (
+    !ownerInfo.originalPassword ||
+    ownerInfo.originalPassword.trim().length === 0
+  ) {
+    res.json({ state: 401, message: '业主初始密码不能为空' })
+  } else if (tool.passwordTest(ownerInfo.originalPassword) === false) {
+    res.json({ state: 401, message: '密码不能有空格' })
+  } else if (tool.cardTest(ownerInfo.ownerCard) === false) {
+    res.json({ state: 401, message: '请输入正确的身份证号码' })
+  } else if (tool.phoneTest(ownerInfo.ownerPhone) === false) {
+    res.json({ state: 401, message: '请输入正确的手机号' })
+  } else if (tool.emailTest(ownerInfo.ownerEmail) === false) {
+    res.json({ state: 401, message: '请输入正确的邮箱' })
+  } else if (ownerInfo.originalPassword.trim().length > 6) {
+    res.json({ state: 401, message: '请设置6位数的密码' })
+  }
   // 新增之前判断身份证是否唯一
-  if (req.body.params.ownerCard) {
+  else if (ownerInfo.ownerCard) {
     let owner = models.owner
       .findOne({
         where: {
-          ownerCard: req.body.params.ownerCard
+          ownerCard: ownerInfo.ownerCard,
+          ownerName: ownerInfo.ownerName
         }
       })
       .then(owner => {
@@ -34,7 +83,7 @@ router.post('/addOwner', function(req, res, next) {
           let owner = models.owner
             .findOne({
               where: {
-                ownerEmail: req.body.params.ownerEmail
+                ownerEmail: ownerInfo.ownerEmail
               }
             })
             .then(owner => {
@@ -42,13 +91,13 @@ router.post('/addOwner', function(req, res, next) {
                 let owner = models.owner
                   .findOne({
                     where: {
-                      ownerPhone: req.body.params.ownerPhone
+                      ownerPhone: ownerInfo.ownerPhone
                     }
                   })
                   .then(async owner => {
                     if (owner === null) {
                       const owner = models.owner
-                        .create(req.body.params)
+                        .create(ownerInfo)
                         .then(flag => {
                           if (flag) {
                             res.json({ state: 200, message: '添加成功' })
@@ -65,7 +114,7 @@ router.post('/addOwner', function(req, res, next) {
               }
             })
         } else {
-          res.json({ state: 401, message: '身份证重复，已存在' })
+          res.json({ state: 401, message: '业主已存在' })
         }
       })
   }
@@ -190,36 +239,77 @@ router.post('/searchOwner', function(req, res, next) {
 
 // 更新/编辑业主信息
 router.post('/modifyOwner', function(req, res, next) {
+  let ownerInfo = req.body.params.ownerInfo
+  let tool = new tools()
+  console.log(ownerInfo)
   // 新增之前判断身份证邮箱是否唯一
-  if (req.body.params.ownerCard) {
+  if (
+    !ownerInfo.ownerName &&
+    !ownerInfo.ownerEmail &&
+    !ownerInfo.ownerCard &&
+    !ownerInfo.ownerPhone &&
+    !ownerInfo.ownerSex &&
+    !ownerInfo.originalPassword
+  ) {
+    res.json({ state: 401, message: '请输入相应的业主信息' })
+  } else if (!ownerInfo.ownerName || ownerInfo.ownerName.trim().length === 0) {
+    res.json({ state: 401, message: '业主姓名不能为空' })
+  } else if (
+    !ownerInfo.ownerEmail ||
+    ownerInfo.ownerEmail.trim().length === 0
+  ) {
+    res.json({ state: 401, message: '业主邮箱不能为空' })
+  } else if (!ownerInfo.ownerCard || ownerInfo.ownerCard.trim().length === 0) {
+    res.json({ state: 401, message: '业主身份证不能为空' })
+  } else if (
+    !ownerInfo.ownerPhone ||
+    ownerInfo.ownerPhone.trim().length === 0
+  ) {
+    res.json({ state: 401, message: '业主手机不能为空' })
+  } else if (!ownerInfo.ownerSex || ownerInfo.ownerSex.trim().length === 0) {
+    res.json({ state: 401, message: '业主性别不能为空' })
+  } else if (
+    !ownerInfo.originalPassword ||
+    ownerInfo.originalPassword.trim().length === 0
+  ) {
+    res.json({ state: 401, message: '业主初始密码不能为空' })
+  } else if (tool.cardTest(ownerInfo.ownerCard) === false) {
+    res.json({ state: 401, message: '请输入正确的身份证号码' })
+  } else if (tool.phoneTest(ownerInfo.ownerPhone) === false) {
+    res.json({ state: 401, message: '请输入正确的手机号' })
+  } else if (tool.emailTest(ownerInfo.ownerEmail) === false) {
+    res.json({ state: 401, message: '请输入正确的邮箱' })
+  } else if (ownerInfo.originalPassword.trim().length > 6) {
+    res.json({ state: 401, message: '请设置6位数的密码' })
+  } else if (ownerInfo.ownerCard) {
     let owner = models.owner
       .findOne({
         where: {
-          ownerCard: req.body.params.ownerCard
+          ownerCard: ownerInfo.ownerCard
         }
       })
       .then(owner => {
-        if (owner.id === req.body.params.id) {
+        if (owner.id === ownerInfo.id) {
           let owner = models.owner
             .findOne({
               where: {
-                ownerEmail: req.body.params.ownerEmail
+                ownerEmail: ownerInfo.ownerEmail
               }
             })
             .then(owner => {
-              if (owner.id === req.body.params.id) {
+              if (owner.id === ownerInfo.id) {
                 let owner = models.owner
                   .findOne({
                     where: {
-                      ownerPhone: req.body.params.ownerPhone
+                      ownerPhone: ownerInfo.ownerPhone
                     }
                   })
                   .then(owner => {
-                    if (owner.id === req.body.params.id) {
+                    if (owner.id === ownerInfo.id) {
                       const modifyOwner = models.owner
-                        .update(req.body.params, {
+                        .update(ownerInfo, {
                           where: {
-                            id: req.body.params.id
+                            id: ownerInfo.id
                           }
                         })
                         .then(flag => {
@@ -267,38 +357,61 @@ router.post('/getOwner', function(req, res, next) {
 
 // 业主修改密码
 router.post('/modifyPassword', function(req, res, next) {
+  let tool = new tools()
   let ownerInfo = req.body.params.ownerInfo
-  const owner = models.owner
-    .findOne({
-      where: {
-        ownerCard: ownerInfo.ownerCard,
-        ownerName: ownerInfo.ownerName,
-        ownerPhone: ownerInfo.ownerPhone
-      }
-    })
-    .then(owner => {
-      if (owner.originalPassword === ownerInfo.inputOriginalPassword) {
-        const modifyPassowd = models.owner
-          .update(
-            { originalPassword: ownerInfo.newPassword },
-            {
-              where: {
-                ownerCard: ownerInfo.ownerCard,
-                ownerName: ownerInfo.ownerName
+  if (
+    !ownerInfo.inputOriginalPassword ||
+    ownerInfo.inputOriginalPassword.trim().length === 0
+  ) {
+    res.json({ state: 401, message: '请输入原密码' })
+  } else if (
+    !ownerInfo.newPassword ||
+    ownerInfo.newPassword.length === 0 ||
+    ownerInfo.newPassword.trim().length < 6
+  ) {
+    res.json({ state: 401, message: '请输入新密码,且不能超过6位' })
+  } else if (tool.passwordTest(ownerInfo.newPassword) === false) {
+    res.json({ state: 401, message: '密码不可带有空格，且不能超过6位' })
+  } else if (
+    !ownerInfo.newPassword_ ||
+    ownerInfo.newPassword_.trim().lengt == 0
+  ) {
+    res.json({ state: 401, message: '请再次输入新密码' })
+  } else if (ownerInfo.newPassword_ != ownerInfo.newPassword) {
+    res.json({ state: 401, message: '新密码输入不一致' })
+  } else {
+    const owner = models.owner
+      .findOne({
+        where: {
+          ownerCard: ownerInfo.ownerCard,
+          ownerName: ownerInfo.ownerName,
+          ownerPhone: ownerInfo.ownerPhone
+        }
+      })
+      .then(owner => {
+        if (owner.originalPassword === ownerInfo.inputOriginalPassword) {
+          const modifyPassowd = models.owner
+            .update(
+              { originalPassword: ownerInfo.newPassword },
+              {
+                where: {
+                  ownerCard: ownerInfo.ownerCard,
+                  ownerName: ownerInfo.ownerName
+                }
               }
-            }
-          )
-          .then(modify => {
-            if (modify != null) {
-              res.json({ state: 200, message: '修改成功，请重新登录' })
-            } else {
-              res.json({ state: 400 })
-            }
-          })
-      } else {
-        res.json({ state: 401, message: '原密码错误' })
-      }
-    })
+            )
+            .then(modify => {
+              if (modify != null) {
+                res.json({ state: 200, message: '修改成功，请重新登录' })
+              } else {
+                res.json({ state: 400 })
+              }
+            })
+        } else {
+          res.json({ state: 401, message: '原密码错误' })
+        }
+      })
+  }
 })
 
 // 导出全部Excel文件

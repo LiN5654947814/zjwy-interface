@@ -67,7 +67,9 @@ router.post('/addParking', function(req, res, next) {
   parkingInfo.parkingEndTime = ''
   parkingInfo.parkingOwner = ''
   console.log(parkingInfo)
-  if (parkingInfo) {
+  if (!parkingInfo.parkingNum || parkingInfo.parkingNum.trim().length === 0) {
+    res.json({ state: 401, message: '请输入公有车位编号' })
+  } else {
     let pakring = models.parking
       .findOne({
         where: {

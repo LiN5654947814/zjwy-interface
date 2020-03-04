@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const models = require('../models')
 const Op = models.Sequelize.Op
-
+const tools = require('../tools')
 // 获取所有报修信息
 router.get('/getAllFix', function(req, res, next) {
   const fixList = models.fix.findAll().then(fixList => {
@@ -56,27 +56,52 @@ router.post('/searchFix', function(req, res, next) {
 router.post('/addFix', function(req, res, next) {
   console.log(req.body.params)
   let fixInfo = req.body.params.fixInfo
-  let owner = models.owner
-    .findOne({
-      where: {
-        ownerName: fixInfo.fixOwner,
-        ownerPhone: fixDetail.fixOwnerPhone
-      }
-    })
-    .then(owner => {
-      console.log(owner)
-      if (owner != null) {
-        const fix = models.fix.create(fixInfo).then(fix => {
-          if (fix != null) {
-            res.json({ state: 200, message: '添加成功' })
-          } else {
-            res.json({ state: 400 })
-          }
-        })
-      } else {
-        res.json({ state: 401, message: '业主不存在或手机号匹配错误' })
-      }
-    })
+  let tool = new tools()
+  if (!fixInfo.fixOwner || fixInfo.fixOwner.trim().length === 0) {
+    res.json({ state: 401, message: '请输入业主名' })
+  } else if (
+    !fixInfo.fixOwnerUnit ||
+    fixInfo.fixOwnerUnit.trim().length === 0
+  ) {
+    res.json({ state: 401, message: '请输入所在单元' })
+  } else if (
+    !fixInfo.fixOwnerPhone ||
+    fixInfo.fixOwnerPhone.trim().length === 0
+  ) {
+    res.json({ state: 401, message: '请输入手机号' })
+  } else if (!fixInfo.fixStartTime) {
+    res.json({ state: 401, message: '请输入报修日期' })
+  } else if (!fixInfo.fixState) {
+    res.json({ state: 401, message: '请输入报修状态' })
+  } else if (tool.phoneTest(fixInfo.fixOwnerPhone) === false) {
+    res.json({ state: 401, message: '请输入正确的手机号' })
+  } else if (!fixInfo.fixContent || fixInfo.fixContent.trim().length === 0) {
+    res.json({ state: 401, message: '请输入报修内容' })
+  } else if (fixInfo.fixContent.trim().length > 500) {
+    res.json({ state: 401, message: '报修内容不得超过500字' })
+  } else {
+    let owner = models.owner
+      .findOne({
+        where: {
+          ownerName: fixInfo.fixOwner,
+          ownerPhone: fixDetail.fixOwnerPhone
+        }
+      })
+      .then(owner => {
+        console.log(owner)
+        if (owner != null) {
+          const fix = models.fix.create(fixInfo).then(fix => {
+            if (fix != null) {
+              res.json({ state: 200, message: '添加成功' })
+            } else {
+              res.json({ state: 400 })
+            }
+          })
+        } else {
+          res.json({ state: 401, message: '业主不存在或手机号匹配错误' })
+        }
+      })
+  }
 })
 
 // 删除报修信息

@@ -3,7 +3,7 @@ const router = express.Router()
 const models = require('../models')
 const Op = models.Sequelize.Op
 const writeXls = require('../export')
-
+const tools = require('../tools')
 // 获取所有收费信息
 router.get('/getAllPay', function(req, res, next) {
   const payList = models.pay.findAll().then(payList => {
@@ -74,28 +74,53 @@ router.post('/payStateChange', function(req, res, next) {
 
 // 新增缴费信息
 router.post('/addPay', function(req, res, next) {
+  let tool = new tools()
   let payInfo = req.body.params.payInfo
   payInfo.payCalling = false
-  const owner = models.owner
-    .findOne({
-      where: {
-        ownerName: payInfo.payOwner,
-        ownerCard: payInfo.payOwnerCard
-      }
-    })
-    .then(owner => {
-      if (owner != null) {
-        const pay = models.pay.create(payInfo).then(pay => {
-          if (pay != null) {
-            res.json({ state: 200, message: '添加成功' })
-          } else {
-            res.json({ state: 400 })
-          }
-        })
-      } else {
-        res.json({ state: 401, message: '用户不存在或信息不匹配，请检查' })
-      }
-    })
+  if (!payInfo.payOwner || payInfo.payOwner.trim().length === 0) {
+    res.json({ state: 401, message: '请输入业主名' })
+  } else if (
+    !payInfo.payOwnerPhone ||
+    payInfo.payOwnerPhone.trim().length === 0
+  ) {
+    res.json({ state: 401, message: '请输入手机号' })
+  } else if (tool.phoneTest(payInfo.payOwnerPhone) === false) {
+    res.json({ state: 401, message: '请输入正确的手机号' })
+  } else if (
+    !payInfo.payOwnerCard ||
+    payInfo.payOwnerCard.trim().length === 0
+  ) {
+    res.json({ state: 401, message: '请输入业主身份证' })
+  } else if (tool.cardTest(payInfo.payOwnerCard) === false) {
+    res.json({ state: 401, message: '请输入正确的身份证' })
+  } else if (!payInfo.payOwnerUnit || payInfo.payOwnerUnit.trim() === 0) {
+    res.json({ state: 401, message: '请输入业主所在单位' })
+  } else if (!payInfo.payDate) {
+    res.json({ state: 401, message: '请输入该缴费月' })
+  } else if (!payInfo.payState) {
+    res.json({ state: 401, message: '请输入缴费状态' })
+  } else {
+    const owner = models.owner
+      .findOne({
+        where: {
+          ownerName: payInfo.payOwner,
+          ownerCard: payInfo.payOwnerCard
+        }
+      })
+      .then(owner => {
+        if (owner != null) {
+          const pay = models.pay.create(payInfo).then(pay => {
+            if (pay != null) {
+              res.json({ state: 200, message: '添加成功' })
+            } else {
+              res.json({ state: 400 })
+            }
+          })
+        } else {
+          res.json({ state: 401, message: '用户不存在或信息不匹配，请检查' })
+        }
+      })
+  }
 })
 
 // 删除单条缴费信息

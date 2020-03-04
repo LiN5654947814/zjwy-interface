@@ -39,29 +39,45 @@ router.get('/getAllUnSaleEstate', function(req, res, next) {
 
 // 新增未登记房产
 router.post('/addEstate', function(req, res, next) {
+  let estateInfo = req.body.params.estateInfo
+  console.log(estateInfo)
   // 新增之前判断是否有重复
-  if (
-    req.body.params.estateBuilds &&
-    req.body.params.estateUnit &&
-    req.body.params.estateFloor &&
-    req.body.params.estatePlate
+  if (!estateInfo.estateBuilds) {
+    res.json({ state: 401, message: '请选择房产楼宇' })
+  } else if (!estateInfo.estateUnit) {
+    res.json({ state: 401, message: '请选择房产单元' })
+  } else if (!estateInfo.estateFloor) {
+    res.json({ state: 401, message: '请选择房产楼层' })
+  } else if (
+    !estateInfo.estatePlate ||
+    estateInfo.estatePlate.trim().length === 0
   ) {
+    res.json({ state: 401, message: '请输入门牌号' })
+  } else if (
+    !estateInfo.estateArea ||
+    estateInfo.estateArea.trim().length === 0
+  ) {
+    res.json({ state: 401, message: '请输入房产面积' })
+  } else if (!estateInfo.estateApart) {
+    res.json({ state: 401, message: '请选择房产户型' })
+  } else if (!estateInfo.estateReno) {
+    res.json({ state: 401, message: '请选择装修状态' })
+  } else {
     let estate = models.estate
       .findAll({
         where: {
-          estateBuilds: req.body.params.estateBuilds,
-          estateUnit: req.body.params.estateUnit,
-          estateFloor: req.body.params.estateFloor,
-          estatePlate: req.body.params.estatePlate
+          estateBuilds: estateInfo.estateBuilds,
+          estateUnit: estateInfo.estateUnit,
+          estateFloor: estateInfo.estateFloor,
+          estatePlate: estateInfo.estatePlate
         }
       })
       .then(estate => {
         if (estate.length != 0) {
           res.json({ state: 401, message: '该房产信息已存在' })
         } else {
-          const estate = models.estate.create(req.body.params).then(flag => {
+          const estate = models.estate.create(estateInfo).then(flag => {
             if (flag) {
-              console.log(flag)
               res.json({ state: 200, message: '添加成功' })
             } else {
               res.json({ state: 400 })

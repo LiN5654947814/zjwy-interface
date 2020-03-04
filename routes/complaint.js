@@ -162,20 +162,27 @@ router.post('/complaintOwnerRead', function(req, res, next) {
 // 回复业主
 router.post('/referComplaint', function(req, res, next) {
   const complaintInfo = req.body.params.complaintInfo
-  complaintInfo.ownerReadState = false
-  const referOwner = models.complaint
-    .update(complaintInfo, {
-      where: {
-        id: complaintInfo.id
-      }
-    })
-    .then(referOnwer => {
-      if (referOwner != null) {
-        res.json({ state: 200, message: '回复成功' })
-      } else {
-        res.json({ state: 400 })
-      }
-    })
+  if (
+    complaintInfo.complaintReply.trim().length === 0 ||
+    !complaintInfo.complaintReply
+  ) {
+    res.json({ state: 401, message: '请输入回复信息' })
+  } else {
+    complaintInfo.ownerReadState = false
+    const referOwner = models.complaint
+      .update(complaintInfo, {
+        where: {
+          id: complaintInfo.id
+        }
+      })
+      .then(referOnwer => {
+        if (referOwner != null) {
+          res.json({ state: 200, message: '回复成功' })
+        } else {
+          res.json({ state: 400 })
+        }
+      })
+  }
 })
 
 module.exports = router
