@@ -65,6 +65,8 @@ router.post('/addOwner', function(req, res, next) {
     ownerInfo.originalPassword.trim().length === 0
   ) {
     res.json({ state: 401, message: '业主初始密码不能为空' })
+  } else if (ownerInfo.originalPassword.trim().length > 6) {
+    res.json({ state: 401, message: '请设置6位数的密码' })
   } else if (tool.passwordTest(ownerInfo.originalPassword) === false) {
     res.json({ state: 401, message: '密码不能有空格' })
   } else if (tool.cardTest(ownerInfo.ownerCard) === false) {
@@ -73,8 +75,6 @@ router.post('/addOwner', function(req, res, next) {
     res.json({ state: 401, message: '请输入正确的手机号' })
   } else if (tool.emailTest(ownerInfo.ownerEmail) === false) {
     res.json({ state: 401, message: '请输入正确的邮箱' })
-  } else if (ownerInfo.originalPassword.trim().length > 6) {
-    res.json({ state: 401, message: '请设置6位数的密码' })
   }
   // 新增之前判断身份证是否唯一
   else if (ownerInfo.ownerCard) {
