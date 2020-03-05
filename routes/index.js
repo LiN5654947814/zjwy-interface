@@ -21,7 +21,7 @@ const main = require('./main')
 // token验证
 const jwtAuth = require('./jwt')
 
-// router.use(jwtAuth)
+router.use(jwtAuth)
 router.use((err, req, res, next) => {
   if (err && err.name === 'UnauthorizedError') {
     return res.json({ state: 404, message: '登录过期或无效，请重新登录' })

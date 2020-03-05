@@ -7,7 +7,7 @@ const writeXls = require('../export')
 // 获取所有登记的房产
 router.get('/getAllRegisterEstate', async function(req, res, next) {
   const registerEstate = await models.estate.findAll({
-    order: [['id', 'DESC']],
+    order: [['ownerMoveDate', 'DESC']],
     where: {
       estateResgister: '已登记'
     }

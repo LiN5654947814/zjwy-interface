@@ -5,13 +5,17 @@ const Op = models.Sequelize.Op
 const tools = require('../tools')
 // 获取所有报修信息
 router.get('/getAllFix', function(req, res, next) {
-  const fixList = models.fix.findAll().then(fixList => {
-    if (fixList != null) {
-      res.json({ state: 200, fixList: fixList })
-    } else {
-      res.json({ state: 400 })
-    }
-  })
+  const fixList = models.fix
+    .findAll({
+      order: [['fixStartTime', 'DESC']]
+    })
+    .then(fixList => {
+      if (fixList != null) {
+        res.json({ state: 200, fixList: fixList })
+      } else {
+        res.json({ state: 400 })
+      }
+    })
 })
 
 // 按条件搜索报修信息

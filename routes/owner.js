@@ -9,7 +9,8 @@ const tools = require('../tools')
 router.get('/getAllOwner', function(req, res, next) {
   const ownerList = models.owner
     .findAll({
-      include: [models.estate, models.parking]
+      include: [models.estate, models.parking],
+      order: [['ownerMoveDate', 'desc']]
     })
     .then(owners => {
       if (owners != null) {
@@ -129,40 +130,100 @@ router.post('/addOwner', function(req, res, next) {
 
 // 删除单个业主信息
 router.post('/deleteOwner', function(req, res, next) {
-  const deleteOwner = models.owner
-    .destroy({
+  const estate = models.estate
+    .findOne({
       where: {
-        id: req.body.params.id,
-        ownerCard: req.body.params.ownerCard
+        estateOwnerCard: req.body.params.ownerCard
       }
     })
-    .then(owner => {
-      if (owner) {
-        res.json({ state: 200, message: '删除成功' })
+    .then(estate => {
+      if (estate === null) {
+        const parking = models.parking
+          .findOne({
+            where: {
+              parkingOwnerCard: req.body.params.ownerCard
+            }
+          })
+          .then(parking => {
+            if (parking === null) {
+              const destroyOwner = models.owner
+                .destroy({
+                  where: {
+                    id: req.body.params.id
+                  }
+                })
+                .then(owner => {
+                  if (owner != null) {
+                    res.json({ state: 200, message: '删除成功' })
+                  } else {
+                    res.json({ state: 400 })
+                  }
+                })
+            } else {
+              res.json({
+                state: 401,
+                message: '无法删除，请先解除该业主名下的车位信息'
+              })
+            }
+          })
       } else {
-        res.json({ state: 400 })
+        res.json({
+          state: 401,
+          message: '无法删除，请先解除该业主名下的房产信息'
+        })
       }
     })
 })
 
 // 批量删除
 router.post('/deleteOwners', function(req, res, next) {
+  let deleteOwnerList = req.body.params.deleteOwners
   return new Promise((resolve, reject) => {
-    if (!req.body.params.deleteOwners) {
+    let currentList = []
+    if (!deleteOwnerList) {
       reject(error)
-    } else if (req.body.params.deleteOwners.length != 0) {
-      req.body.params.deleteOwners.forEach(item => {
-        const deleteActive = models.owner.destroy({
-          where: {
-            id: item.id
-          }
-        })
+    } else if (deleteOwnerList.length != 0) {
+      deleteOwnerList.forEach((item, index) => {
+        let estate = models.estate
+          .findOne({
+            where: {
+              estateOwnerCard: item.ownerCard
+            }
+          })
+          .then(estate => {
+            if (estate === null) {
+              const parking = models.parking
+                .findOne({
+                  where: {
+                    parkingOwnerCard: item.ownerCard
+                  }
+                })
+                .then(parking => {
+                  if (parking === null) {
+                    const owner = models.owner.destroy({
+                      where: {
+                        id: item.id
+                      }
+                    })
+                  } else {
+                    currentList.push(item)
+                  }
+                })
+            } else {
+              currentList.push(item)
+            }
+          })
       })
-      resolve()
+      resolve(currentList)
     }
   })
-    .then(data => {
-      res.json({ state: 200, message: '删除成功' })
+    .then(currentList => {
+      console.log(deleteOwnerList)
+      res.json({
+        state: 200,
+        message:
+          '执行成功，若存在未能删除业主，请检查其名下是否解除相关的物业绑定'
+      })
     })
     .catch(error => {
       res.json({ state: 400 })

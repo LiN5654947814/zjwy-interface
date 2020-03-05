@@ -6,13 +6,17 @@ const tools = require('../tools')
 
 // 获取所有投诉信息
 router.get('/getAllComplaint', function(req, res, next) {
-  const complaintList = models.complaint.findAll().then(complaintList => {
-    if (complaintList != null) {
-      res.json({ state: 200, complaintList: complaintList })
-    } else {
-      res.json({ state: 400 })
-    }
-  })
+  const complaintList = models.complaint
+    .findAll({
+      order: [['complaintTime', 'DESC']]
+    })
+    .then(complaintList => {
+      if (complaintList != null) {
+        res.json({ state: 200, complaintList: complaintList })
+      } else {
+        res.json({ state: 400 })
+      }
+    })
 })
 // 按条件搜索
 router.post('/searchComplaint', function(req, res, next) {

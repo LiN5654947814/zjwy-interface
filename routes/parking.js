@@ -10,7 +10,8 @@ router.get('/getAllParking', function(req, res, next) {
     .findAll({
       where: {
         parkingType: '公有'
-      }
+      },
+      order: [['id', 'DESC']]
     })
     .then(parkingList => {
       if (parkingList != null) {
@@ -186,7 +187,8 @@ router.get('/getAllRegisterParking', function(req, res, next) {
     .findAll({
       where: {
         parkingType: '私有'
-      }
+      },
+      order: [['parkingStartTime', 'DESC']]
     })
     .then(parkingList => {
       if (parkingList != null) {
@@ -229,7 +231,6 @@ router.post('/reliveParking', function(req, res, next) {
       }
     })
   console.log(req.body.params)
-  res.json({ state: 200 })
 })
 
 // 编辑已登记的车位信息
