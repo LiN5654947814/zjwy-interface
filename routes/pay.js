@@ -104,7 +104,8 @@ router.post('/addPay', function(req, res, next) {
       .findOne({
         where: {
           ownerName: payInfo.payOwner,
-          ownerCard: payInfo.payOwnerCard
+          ownerCard: payInfo.payOwnerCard,
+          ownerPhone: payInfo.payOwnerPhone
         }
       })
       .then(owner => {

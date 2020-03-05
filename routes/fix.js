@@ -205,7 +205,7 @@ router.post('/referOwnerFix', function(req, res, next) {
         } else {
           const fix = models.fix.create(fixInfo).then(fix => {
             if (fix != null) {
-              res.json({ state: 200, message: '提交成功' })
+              res.json({ state: 200, message: '提交成功，请等待联系' })
             } else {
               res.json({ state: 400 })
             }

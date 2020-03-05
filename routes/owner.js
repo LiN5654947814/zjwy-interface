@@ -13,6 +13,13 @@ router.get('/getAllOwner', function(req, res, next) {
     })
     .then(owners => {
       if (owners != null) {
+        // 移除管理员
+        owners = JSON.parse(JSON.stringify(owners))
+        owners.forEach((item, index) => {
+          if (item.author === true) {
+            owners.splice(index, 1)
+          }
+        })
         res.json({ state: 200, owners: owners })
       } else {
         res.jons({ state: 400 })
