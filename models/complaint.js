@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
   const complaint = sequelize.define(
     'complaint',
     {
-      // 投诉日期
+      // 投诉提交时间
       complaintTime: DataTypes.STRING,
       // 投诉类型
       complaintType: DataTypes.STRING,
@@ -11,13 +11,11 @@ module.exports = (sequelize, DataTypes) => {
       complaintContent: DataTypes.STRING,
       // 投诉业主
       complaintOwner: DataTypes.STRING,
-      // 业主身份证
-      complaintOwnerCard: DataTypes.STRING,
-      // 业主联系电话
+      // 投诉业主手机
       complaintOwnerPhone: DataTypes.STRING,
-      // 业主所在单位
+      // 投诉业主所在单元
       complaintOwnerUnit: DataTypes.STRING,
-      // 回复
+      // 投诉回复
       complaintReply: DataTypes.STRING,
       // 管理员阅读状态
       readState: DataTypes.BOOLEAN,

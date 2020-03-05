@@ -20,9 +20,6 @@ module.exports = {
       complaintOwner: {
         type: Sequelize.STRING
       },
-      complaintOwnerCard: {
-        type: Sequelize.STRING
-      },
       complaintOwnerPhone: {
         type: Sequelize.STRING
       },

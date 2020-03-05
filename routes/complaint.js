@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const models = require('../models')
 const Op = models.Sequelize.Op
+const tools = require('../tools')
 
 // 获取所有投诉信息
 router.get('/getAllComplaint', function(req, res, next) {
@@ -113,7 +114,7 @@ router.post('/getOwnerComplaint', function(req, res, next) {
     .findAll({
       where: {
         complaintOwner: ownerInfo.ownerName,
-        complaintOwnerCard: ownerInfo.ownerCard
+        complaintOwnerPhone: ownerInfo.ownerPhone
       }
     })
     .then(complaintList => {
@@ -127,17 +128,63 @@ router.post('/getOwnerComplaint', function(req, res, next) {
 
 // 业主提交投诉信息
 router.post('/referOwnerComplaint', function(req, res, next) {
+  let tool = new tools()
   let complaintRefer = req.body.params.complaintRefer
   complaintRefer.complaintReply = ''
   complaintRefer.ownerReadState = false
   complaintRefer.readState = false
-  const compliant = models.complaint.create(complaintRefer).then(complaint => {
-    if (complaint != null) {
-      res.json({ state: 200, message: '提交成功' })
-    } else {
-      res.json({ state: 400 })
-    }
-  })
+  if (
+    !complaintRefer.complaintOwner ||
+    complaintRefer.complaintOwner.trim().length === 0
+  ) {
+    res.json({ state: 401, message: '请输入姓名' })
+  } else if (!complaintRefer.complaintType) {
+    res.json({ state: 401, message: '请选择投诉类型' })
+  } else if (!complaintRefer.complaintTime) {
+    res.json({ state: 401, message: '请选择投诉日期' })
+  } else if (
+    !complaintRefer.complaintOwnerUnit ||
+    complaintRefer.complaintOwnerUnit.trim().length === 0
+  ) {
+    res.json({ state: 401, message: '请输入所在单元' })
+  } else if (
+    !complaintRefer.complaintOwnerPhone ||
+    complaintRefer.complaintOwnerPhone.trim().length === 0
+  ) {
+    res.json({ state: 401, message: '请输入手机号' })
+  } else if (tool.phoneTest(complaintRefer.complaintOwnerPhone) === false) {
+    res.json({ state: 401, message: '请输入正确的手机号' })
+  } else if (
+    !complaintRefer.complaintContent ||
+    complaintRefer.complaintContent.trim().length === 0
+  ) {
+    res.json({ state: 401, message: '请输入投诉内容' })
+  } else if (complaintRefer.complaintContent.trim().length > 500) {
+    res.json({ state: 401, message: '投诉信息不能超过500字' })
+  } else {
+    const owner = models.owner
+      .findOne({
+        where: {
+          ownerName: complaintRefer.complaintOwner,
+          ownerPhone: complaintRefer.complaintOwnerPhone
+        }
+      })
+      .then(owner => {
+        if (owner === null) {
+          res.json({ state: 401, message: '业主不存在或联系方式不匹配' })
+        } else {
+          const compliant = models.complaint
+            .create(complaintRefer)
+            .then(complaint => {
+              if (complaint != null) {
+                res.json({ state: 200, message: '提交成功' })
+              } else {
+                res.json({ state: 400 })
+              }
+            })
+        }
+      })
+  }
 })
 
 // 业主标注已读

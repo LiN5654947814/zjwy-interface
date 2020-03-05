@@ -154,7 +154,7 @@ router.post('/getOwnerFix', function(req, res, next) {
     .findAll({
       where: {
         fixOwner: ownerInfo.ownerName,
-        fixOwnerCard: ownerInfo.ownerCard
+        fixOwnerPhone: ownerInfo.ownerPhone
       }
     })
     .then(ownerFixList => {
@@ -168,14 +168,51 @@ router.post('/getOwnerFix', function(req, res, next) {
 
 // 业主提交报修信息
 router.post('/referOwnerFix', function(req, res, next) {
+  let tool = new tools()
   let fixInfo = req.body.params.fixInfo
-  const fix = models.fix.create(fixInfo).then(fix => {
-    if (fix != null) {
-      res.json({ state: 200, message: '提交成功' })
-    } else {
-      res.json({ state: 400 })
-    }
-  })
+  console.log(fixInfo)
+  if (!fixInfo.fixOwner || fixInfo.fixOwner.trim().length === 0) {
+    res.json({ state: 401, message: '业主姓名不能为空' })
+  } else if (!fixInfo.fixStartTime) {
+    res.json({ state: 401, message: '请输入报修提交日期' })
+  } else if (
+    !fixInfo.fixOwnerUnit ||
+    fixInfo.fixOwnerUnit.trim().length === 0
+  ) {
+    res.json({ state: 401, message: '请输入所在的单元' })
+  } else if (
+    !fixInfo.fixOwnerPhone ||
+    fixInfo.fixOwnerPhone.trim().length === 0
+  ) {
+    res.json({ state: 401, message: '请输入手机号' })
+  } else if (tool.phoneTest(fixInfo.fixOwnerPhone) === false) {
+    res.json({ state: 401, message: '请输入正确的手机号' })
+  } else if (!fixInfo.fixContent || fixInfo.fixContent.trim().length === 0) {
+    res.json({ state: 401, message: '请输入报修内容' })
+  } else if (fixInfo.fixContent.trim().length > 500) {
+    res.json({ state: 401, message: '报修内容不可超过500字' })
+  } else {
+    const owner = models.owner
+      .findOne({
+        where: {
+          ownerName: fixInfo.fixOwner,
+          ownerPhone: fixInfo.fixOwnerPhone
+        }
+      })
+      .then(owner => {
+        if (owner === null) {
+          res.json({ state: 401, message: '业主与手机号不匹配，请检查' })
+        } else {
+          const fix = models.fix.create(fixInfo).then(fix => {
+            if (fix != null) {
+              res.json({ state: 200, message: '提交成功' })
+            } else {
+              res.json({ state: 400 })
+            }
+          })
+        }
+      })
+  }
 })
 
 // 变更报修信息
