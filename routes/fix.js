@@ -222,8 +222,31 @@ router.post('/referOwnerFix', function(req, res, next) {
 // 变更报修信息
 router.post('/modifyFixDetail', function(req, res, next) {
   let fixDetail = req.body.params.fixDetail
-  console.log(fixDetail)
-  const owner = models.owner
+  let tool = new tools()
+  if (!fixDetail.fixOwner || fixDetail.fixOwner.trim().length === 0) {
+    res.json({ state: 401, message: '请输入业主名' })
+  } else if (
+    !fixDetail.fixOwnerUnit ||
+    fixDetail.fixOwnerUnit.trim().length === 0
+  ) {
+    res.json({ state: 401, message: '请输入所在单元' })
+  } else if (
+    !fixDetail.fixOwnerPhone ||
+    fixDetail.fixOwnerPhone.trim().length === 0
+  ) {
+    res.json({ state: 401, message: '请输入手机号' })
+  } else if (!fixDetail.fixStartTime) {
+    res.json({ state: 401, message: '请输入报修日期' })
+  } else if (!fixDetail.fixState) {
+    res.json({ state: 401, message: '请输入报修状态' })
+  } else if (tool.phoneTest(fixDetail.fixOwnerPhone) === false) {
+    res.json({ state: 401, message: '请输入正确的手机号' })
+  } else if (!fixDetail.fixContent || fixDetail.fixContent.trim().length === 0) {
+    res.json({ state: 401, message: '请输入报修内容' })
+  } else if (fixDetail.fixContent.trim().length > 500) {
+    res.json({ state: 401, message: '报修内容不得超过500字' })
+  } else{
+    const owner = models.owner
     .findOne({
       where: {
         ownerName: fixDetail.fixOwner,
@@ -249,5 +272,6 @@ router.post('/modifyFixDetail', function(req, res, next) {
         res.json({ state: 401, message: '业主不存在或联系方式不匹配' })
       }
     })
+  }
 })
 module.exports = router

@@ -3,6 +3,7 @@ const router = express.Router()
 const models = require('../models')
 const Op = models.Sequelize.Op
 const writeXls = require('../export')
+const tool = require('../tools')
 
 // 获取所有公有车位信息
 router.get('/getAllParking', function(req, res, next) {
@@ -25,9 +26,21 @@ router.get('/getAllParking', function(req, res, next) {
 // 登记车位
 router.post('/parkingRegister', function(req, res, next) {
   let parkingInfo = req.body.params.parkingInfo
+  let tools = new tool()
   console.log(parkingInfo)
+  if(!parkingInfo.parkingStartTime|| parkingInfo.parkingStartTime.trim().length===0){
+    res.json({state:401,message:'请选择租赁开始时间'})
+  }else if (!parkingInfo.parkingEndTime||parkingInfo.parkingEndTime.trim().length===0){
+    res.json({state:401,message:'请选择租赁结束时间'})
+  }else if(!parkingInfo.parkingOwner||parkingInfo.parkingOwner.trim().length===0){
+    res.json({state:401,message:'请输入要登记的业主名'})
+  }else if(!parkingInfo.parkingOwnerCard||parkingInfo.parkingOwnerCard.trim().length===0){
+    res.json({state:401,message:'请输入要登记的业主身份证'})
+  }else if (tools.cardTest(parkingInfo.parkingOwnerCard)===false){
+    res.json({state:401,message:'请输入正确的身份证号码'})
+  }
   // 查询此业主是否存在
-  if (parkingInfo.parkingOwner && parkingInfo.parkingOwnerCard) {
+  else if (parkingInfo.parkingOwner && parkingInfo.parkingOwnerCard) {
     let owner = models.owner
       .findOne({
         where: {

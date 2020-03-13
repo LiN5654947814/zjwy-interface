@@ -3,6 +3,7 @@ const router = express.Router()
 const models = require('../models')
 const Op = models.Sequelize.Op
 const writeXls = require('../export')
+const tool = require('../tools')
 
 // 获取所有登记的房产
 router.get('/getAllRegisterEstate', async function(req, res, next) {
@@ -90,7 +91,16 @@ router.post('/addEstate', function(req, res, next) {
 
 // 登记房产
 router.post('/estateRegister', function(req, res, next) {
-  if (req.body.params.estateOwnerCard && req.body.params.estateOwner) {
+  let tools = new tool()
+  if(!req.body.params.estateOwner ||req.body.params.estateOwner.trim().length ===0){
+    res.json({state:401,message:'请输入要绑定的业主姓名'})
+  }else if(!req.body.params.estateOwnerCard||req.body.params.estateOwnerCard.trim().length===0){
+    res.json({state:401,message:'请输入业主身份证'})
+  }else if(tools.cardTest(req.body.params.estateOwnerCard) === false){
+    res.json({state:401,message:'请输入正确的身份证号码'})
+  }else if(!req.body.params.ownerMoveDate || req.body.params.ownerMoveDate.trim().length ===0){
+    res.json({state:401,message:'请输入迁入时间'})
+  }else if (req.body.params.estateOwnerCard && req.body.params.estateOwner) {
     let owner = models.owner
       .findOne({
         where: {
