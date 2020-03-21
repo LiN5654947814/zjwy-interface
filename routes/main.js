@@ -79,5 +79,31 @@ router.post('/deleteNoticeById', function(req, res, next) {
       }
     })
 })
+// 批量删除公告信息
+router.post('/deleteNoticeList', function(req, res, next) {
+  let noticeList = req.body.params.noticeList
+  return new Promise((resolve, reject) => {
+    if (noticeList.length === 0) {
+      reject()
+    } else if (noticeList) {
+      noticeList.forEach(async item => {
+        const deleteNotice = await models.notice.destroy({
+          where: {
+            id: item.id
+          }
+        })
+        if (deleteNotice != null) {
+          resolve()
+        }
+      })
+    }
+  })
+    .then(() => {
+      res.json({ state: 200, message: '删除成功' })
+    })
+    .catch(error => {
+      res.json({ state: 400 })
+    })
+})
 
 module.exports = router
