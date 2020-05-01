@@ -5,18 +5,22 @@ const Op = models.Sequelize.Op
 const writeXls = require('../export')
 const tools = require('../tools')
 // 获取所有收费信息
-router.get('/getAllPay', function(req, res, next) {
-  const payList = models.pay.findAll().then(payList => {
-    if (payList != null) {
-      res.json({ state: 200, payList: payList })
-    } else {
-      res.json({ state: 400 })
-    }
-  })
+router.get('/getAllPay', function (req, res, next) {
+  const payList = models.pay
+    .findAll({
+      order: [['payDate', 'DESC']],
+    })
+    .then((payList) => {
+      if (payList != null) {
+        res.json({ state: 200, payList: payList })
+      } else {
+        res.json({ state: 400 })
+      }
+    })
 })
 
 // 按条件搜索缴费信息
-router.post('/searchPay', function(req, res, next) {
+router.post('/searchPay', function (req, res, next) {
   let paySearch = req.body.params.paySearch
   console.log(paySearch)
   if (!paySearch.payOwner) {
@@ -30,21 +34,21 @@ router.post('/searchPay', function(req, res, next) {
   }
   let where = {
     payOwner: {
-      [Op.like]: '%' + paySearch.payOwner + '%'
+      [Op.like]: '%' + paySearch.payOwner + '%',
     },
     payState: {
-      [Op.like]: '%' + paySearch.payState + '%'
+      [Op.like]: '%' + paySearch.payState + '%',
     },
     payDate: {
-      [Op.like]: '%' + paySearch.payDate + '%'
-    }
+      [Op.like]: '%' + paySearch.payDate + '%',
+    },
   }
   const payList = models.pay
     .findAll({
       where: where,
-      order: [['id', 'ASC']]
+      order: [['id', 'ASC']],
     })
-    .then(payList => {
+    .then((payList) => {
       if (payList != null) {
         res.json({ state: 200, payList: payList })
       } else {
@@ -54,16 +58,16 @@ router.post('/searchPay', function(req, res, next) {
 })
 
 //切换缴费状态
-router.post('/payStateChange', function(req, res, next) {
+router.post('/payStateChange', function (req, res, next) {
   let payInfo = req.body.params.payInfo
   payInfo.payState = '已缴费'
   let pay = models.pay
     .update(payInfo, {
       where: {
-        id: payInfo.id
-      }
+        id: payInfo.id,
+      },
     })
-    .then(pay => {
+    .then((pay) => {
       if (pay != null) {
         res.json({ state: 200, message: '已修改缴费状态' })
       } else {
@@ -73,7 +77,7 @@ router.post('/payStateChange', function(req, res, next) {
 })
 
 // 新增缴费信息
-router.post('/addPay', function(req, res, next) {
+router.post('/addPay', function (req, res, next) {
   let tool = new tools()
   let payInfo = req.body.params.payInfo
   payInfo.payCalling = false
@@ -105,12 +109,12 @@ router.post('/addPay', function(req, res, next) {
         where: {
           ownerName: payInfo.payOwner,
           ownerCard: payInfo.payOwnerCard,
-          ownerPhone: payInfo.payOwnerPhone
-        }
+          ownerPhone: payInfo.payOwnerPhone,
+        },
       })
-      .then(owner => {
+      .then((owner) => {
         if (owner != null) {
-          const pay = models.pay.create(payInfo).then(pay => {
+          const pay = models.pay.create(payInfo).then((pay) => {
             if (pay != null) {
               res.json({ state: 200, message: '添加成功' })
             } else {
@@ -125,15 +129,15 @@ router.post('/addPay', function(req, res, next) {
 })
 
 // 删除单条缴费信息
-router.post('/deletePay', function(req, res, next) {
+router.post('/deletePay', function (req, res, next) {
   let payInfo = req.body.params.payInfo
   const pay = models.pay
     .destroy({
       where: {
-        id: payInfo.id
-      }
+        id: payInfo.id,
+      },
     })
-    .then(pay => {
+    .then((pay) => {
       if (pay != null) {
         res.json({ state: 200, message: '删除成功' })
       } else {
@@ -143,17 +147,17 @@ router.post('/deletePay', function(req, res, next) {
 })
 
 // 批量删除
-router.post('/deletePayList', function(req, res, next) {
+router.post('/deletePayList', function (req, res, next) {
   let payList = req.body.params.payList
   return new Promise((resolve, reject) => {
     if (!payList) {
       reject(error)
     } else if (payList.length != 0) {
-      payList.forEach(item => {
+      payList.forEach((item) => {
         const pay = models.pay.destroy({
           where: {
-            id: item.id
-          }
+            id: item.id,
+          },
         })
       })
       resolve()
@@ -162,22 +166,22 @@ router.post('/deletePayList', function(req, res, next) {
     .then(() => {
       res.json({ state: 200, message: '删除成功' })
     })
-    .catch(error => {
+    .catch((error) => {
       res.json({ state: 400 })
     })
 })
 
 // 发送催缴信息
-router.post('/sendCalling', function(req, res, next) {
+router.post('/sendCalling', function (req, res, next) {
   let payInfo = req.body.params.payInfo
   payInfo.payCalling = true
   const pay = models.pay
     .findOne({
       where: {
-        id: payInfo.id
-      }
+        id: payInfo.id,
+      },
     })
-    .then(pay => {
+    .then((pay) => {
       if (pay.payCalling === true) {
         res.json({ state: 202, message: '您已发送过催缴信息' })
       } else if (pay.payState === '已缴费') {
@@ -186,10 +190,10 @@ router.post('/sendCalling', function(req, res, next) {
         const pays = models.pay
           .update(payInfo, {
             where: {
-              id: payInfo.id
-            }
+              id: payInfo.id,
+            },
           })
-          .then(payInfo => {
+          .then((payInfo) => {
             if (payInfo != null) {
               res.json({ state: 200, message: '已发送催缴信息' })
             }
@@ -198,17 +202,17 @@ router.post('/sendCalling', function(req, res, next) {
     })
 })
 // 获取单个收费信息
-router.post('/getOnwerPay', function(req, res, next) {
+router.post('/getOnwerPay', function (req, res, next) {
   const ownerInfo = req.body.params.ownerInfo
   const pay = models.pay
     .findOne({
       where: {
         payOwner: ownerInfo.ownerName,
         payOwnerCard: ownerInfo.ownerCard,
-        payDate: ownerInfo.payDate
-      }
+        payDate: ownerInfo.payDate,
+      },
     })
-    .then(pay => {
+    .then((pay) => {
       if (pay != null) {
         res.json({ state: 200, pay: pay })
       } else {
@@ -218,7 +222,7 @@ router.post('/getOnwerPay', function(req, res, next) {
 })
 
 // 业主确认催缴信息
-router.post('/receiveCalling', function(req, res, next) {
+router.post('/receiveCalling', function (req, res, next) {
   let ownerInfo = req.body.params.ownerInfo
   ownerInfo.payCalling = false
   const pay = models.pay
@@ -226,10 +230,10 @@ router.post('/receiveCalling', function(req, res, next) {
       where: {
         payOwner: ownerInfo.ownerName,
         payOwnerCard: ownerInfo.ownerCard,
-        payDate: ownerInfo.payDate
-      }
+        payDate: ownerInfo.payDate,
+      },
     })
-    .then(pay => {
+    .then((pay) => {
       if (pay != null) {
         res.json({ state: 200 })
       } else {
@@ -239,7 +243,7 @@ router.post('/receiveCalling', function(req, res, next) {
 })
 
 // 查询所有收费信息，按月返回
-router.get('/getAllPayByMonth', async function(req, res, next) {
+router.get('/getAllPayByMonth', async function (req, res, next) {
   let currentList = new Array()
   let y = new Date().getFullYear()
   for (let i = 1; i <= 12; i++) {
@@ -250,8 +254,8 @@ router.get('/getAllPayByMonth', async function(req, res, next) {
     const pay = await models.pay.findAll({
       where: {
         payState: '已缴费',
-        payDate: y + '-' + m
-      }
+        payDate: y + '-' + m,
+      },
     })
     console.log('查询一次')
     let result = JSON.parse(JSON.stringify(pay))
@@ -261,7 +265,7 @@ router.get('/getAllPayByMonth', async function(req, res, next) {
 })
 
 // 导出所有收费信息
-router.get('/exportPay', async function(req, res, next) {
+router.get('/exportPay', async function (req, res, next) {
   // 获取数据库信息
   const payList = await models.pay.findAll()
   // 转化为JSON数组对象
@@ -277,7 +281,7 @@ router.get('/exportPay', async function(req, res, next) {
     '公共管理费',
     '续费时间',
     '状态',
-    '合计'
+    '合计',
   ]
   data.push(title)
   let options = {
@@ -290,10 +294,10 @@ router.get('/exportPay', async function(req, res, next) {
       { wch: 15 },
       { wch: 15 },
       { wch: 8 },
-      { wch: 8 }
-    ]
+      { wch: 8 },
+    ],
   }
-  payListJson.forEach(item => {
+  payListJson.forEach((item) => {
     let arrInner = []
     arrInner.push(item.payOwner)
     arrInner.push(item.payOwnerUnit)
@@ -316,7 +320,7 @@ router.get('/exportPay', async function(req, res, next) {
 })
 
 // 勾选导出
-router.post('/exportPayList', async function(req, res, next) {
+router.post('/exportPayList', async function (req, res, next) {
   const payList = req.body.params.payList
   let data = []
   let title = [
@@ -328,7 +332,7 @@ router.post('/exportPayList', async function(req, res, next) {
     '公共管理费',
     '续费时间',
     '状态',
-    '合计'
+    '合计',
   ]
   data.push(title)
   let options = {
@@ -341,10 +345,10 @@ router.post('/exportPayList', async function(req, res, next) {
       { wch: 15 },
       { wch: 15 },
       { wch: 8 },
-      { wch: 8 }
-    ]
+      { wch: 8 },
+    ],
   }
-  payList.forEach(item => {
+  payList.forEach((item) => {
     let arrInner = []
     arrInner.push(item.payOwner)
     arrInner.push(item.payOwnerUnit)
